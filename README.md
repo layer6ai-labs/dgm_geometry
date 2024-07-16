@@ -1,6 +1,6 @@
 # DGM Geometry
 
-Here, we study how the geometry of deep generative models (DGMs) can inform our understanding of phenomena like OOD detection. In tandem and as a supplement to these topics, we also study algorithms for local intrinsic dimension (LID) estimation of datapoints.
+Here, we study how the geometry of deep generative models (DGMs) can inform our understanding of phenomena like the likelihood out-of-distribution paradox. In tandem and as a supplement to these topics, we also study algorithms for local intrinsic dimension (LID) estimation of datapoints.
 
 ## Installation
 
@@ -101,6 +101,11 @@ You may update the content of the website by changing the notebooks and `.qmd` f
 To see the updates in real-time, run the following command that will start a local server:
 ```bash
 # download and install Quarto from https://quarto.org/docs/get-started/
-cd docs
+cd docs_quarto
 quarto preview # opens up a local server on port 4200
+```
+
+To publish the website, move everything to the docs directory:
+```bash
+cp -r docs_quarto/_output/* docs/
 ```
