@@ -1,0 +1,28 @@
+_target_: lid.callbacks.monitor_lid_curve.MonitorLIDCurve
+device: # the device that NB estimator uses for JVP computation
+  _target_: torch.device
+  type: cuda
+dataset: ${dataset.training_torch_data}
+# The sweeping arguments
+sweeping_arg: singular_value_threshold
+sweeping_range:
+  _target_: numpy.linspace
+  start: -10
+  stop: 5
+  num: 50
+use_artifact: True # This heavily boosts the process! 
+lid_estimator_partial:
+  _target_: lid.flows.JacobianThresholdEstimator
+  _partial_: true
+  use_functorch: True
+  use_vmap: False
+  use_forward_mode: True
+  
+frequency: 1
+subsample_size: 4096
+verbose: True
+save_image: ${dataset.is_image}
+batch_size: 8
+
+lid_preprocessing_args:
+  chunk_size: 8

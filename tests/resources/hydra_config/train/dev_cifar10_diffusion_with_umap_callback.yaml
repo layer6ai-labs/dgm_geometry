@@ -1,0 +1,406 @@
+dataset:
+  train:
+    _target_: data.datasets.HuggingFaceDataset
+    dataset:
+      _target_: datasets.load_dataset
+      path: cifar10
+      split: train
+      trust_remote_code: true
+    transform:
+      _target_: torchvision.transforms.Compose
+      transforms:
+      - _target_: torchvision.transforms.Resize
+        size:
+        - 32
+        - 32
+      - _target_: torchvision.transforms.ToTensor
+      - _target_: torchvision.transforms.Normalize
+        mean:
+        - 0.5
+        - 0.5
+        - 0.5
+        std:
+        - 0.5
+        - 0.5
+        - 0.5
+  val:
+    _target_: data.datasets.HuggingFaceDataset
+    dataset:
+      _target_: datasets.load_dataset
+      path: cifar10
+      split: test
+      trust_remote_code: true
+    transform:
+      _target_: torchvision.transforms.Compose
+      transforms:
+      - _target_: torchvision.transforms.Resize
+        size:
+        - 32
+        - 32
+      - _target_: torchvision.transforms.ToTensor
+      - _target_: torchvision.transforms.Normalize
+        mean:
+        - 0.5
+        - 0.5
+        - 0.5
+        std:
+        - 0.5
+        - 0.5
+        - 0.5
+  data_dim: 3072
+  image_size: 32
+  is_tabular: false
+  is_image: true
+  training_torch_data:
+    _target_: data.datasets.TorchHuggingFaceDatasetWrapper
+    hugging_face_dataset:
+      _target_: data.datasets.HuggingFaceDataset
+      dataset:
+        _target_: datasets.load_dataset
+        path: cifar10
+        split: train
+        trust_remote_code: true
+      transform:
+        _target_: torchvision.transforms.Compose
+        transforms:
+        - _target_: torchvision.transforms.Resize
+          size:
+          - 32
+          - 32
+        - _target_: torchvision.transforms.ToTensor
+        - _target_: torchvision.transforms.Normalize
+          mean:
+          - 0.5
+          - 0.5
+          - 0.5
+          std:
+          - 0.5
+          - 0.5
+          - 0.5
+  test_torch_data:
+    _target_: data.datasets.TorchHuggingFaceDatasetWrapper
+    hugging_face_dataset:
+      _target_: data.datasets.HuggingFaceDataset
+      dataset:
+        _target_: datasets.load_dataset
+        path: cifar10
+        split: test
+        trust_remote_code: true
+      transform:
+        _target_: torchvision.transforms.Compose
+        transforms:
+        - _target_: torchvision.transforms.Resize
+          size:
+          - 32
+          - 32
+        - _target_: torchvision.transforms.ToTensor
+        - _target_: torchvision.transforms.Normalize
+          mean:
+          - 0.5
+          - 0.5
+          - 0.5
+          std:
+          - 0.5
+          - 0.5
+          - 0.5
+dgm:
+  architecture:
+    _target_: models.diffusions.sdes.VpSde
+    score_net:
+      _target_: models.diffusions.networks.UNet2D
+      sample_size: 32
+      in_channels: 3
+      out_channels: 3
+      layers_per_block: 3
+      block_out_channels:
+      - 128
+      - 256
+      - 256
+      - 256
+      down_block_types:
+      - DownBlock2D
+      - DownBlock2D
+      - AttnDownBlock2D
+      - AttnDownBlock2D
+      up_block_types:
+      - AttnUpBlock2D
+      - AttnUpBlock2D
+      - UpBlock2D
+      - UpBlock2D
+  sampling_args:
+    sample_shape:
+    - 3
+    - 32
+    - 32
+    timesteps: 1000
+    batch_size: 128
+  likelihood_estimation_args: {}
+lightning_dgm:
+  _target_: models.diffusions.training.LightningDiffusion
+  optim_partial:
+    _partial_: true
+    _target_: torch.optim.AdamW
+    lr: 0.0001
+  scheduler_partial:
+    _partial_: true
+    _target_: diffusers.optimization.get_cosine_schedule_with_warmup
+    num_warmup_steps: 500
+  sde:
+    _target_: models.diffusions.sdes.VpSde
+    score_net:
+      _target_: models.diffusions.networks.UNet2D
+      sample_size: 32
+      in_channels: 3
+      out_channels: 3
+      layers_per_block: 3
+      block_out_channels:
+      - 128
+      - 256
+      - 256
+      - 256
+      down_block_types:
+      - DownBlock2D
+      - DownBlock2D
+      - AttnDownBlock2D
+      - AttnDownBlock2D
+      up_block_types:
+      - AttnUpBlock2D
+      - AttnUpBlock2D
+      - UpBlock2D
+      - UpBlock2D
+  sampling_transform:
+    _target_: torchvision.transforms.Compose
+    transforms:
+    - _target_: torchvision.transforms.Normalize
+      mean:
+      - -1
+      - -1
+      - -1
+      std:
+      - 2
+      - 2
+      - 2
+    - _partial_: true
+      _target_: torch.clamp
+      min: 0
+      max: 1
+  unpack_batch:
+    _target_: data.transforms.unpack.UnpackHuggingFace
+dev_run: false
+out_dir: ./outputs
+mlflow:
+  experiment_name: hydra_tests
+  tags:
+    data_type: image_rgb
+    model: diffusion
+    test_script: train
+    setting: dev_cifar10_diffusion_with_umap_callback
+  pytorch_autolog:
+    disable: false
+    log_models: false
+all_callbacks:
+  log_metrics:
+    _target_: models.training.callbacks.MlFlowLogMetrics
+  sample_grid:
+    _target_: models.training.callbacks.SampleGrid
+    sample_every_n_epoch: 5
+    sample_kwargs:
+      sample_shape:
+      - 3
+      - 32
+      - 32
+      timesteps: 1000
+      batch_size: 128
+  checkpoint:
+    _target_: lightning.pytorch.callbacks.ModelCheckpoint
+    monitor: val/loss
+    save_last: true
+    save_top_k: 3
+  umap:
+    _target_: models.training.callbacks.UmapGeneratorEval
+    frequency: 1
+    limit_count: 10
+    sampling_kwargs:
+      sample_shape:
+      - 3
+      - 32
+      - 32
+      timesteps: 1000
+      batch_size: 128
+all_data_transforms:
+  t0:
+    _target_: torchvision.transforms.Resize
+    size:
+    - 32
+    - 32
+  t1:
+    _target_: torchvision.transforms.ToTensor
+  t2:
+    _target_: torchvision.transforms.Normalize
+    mean:
+    - 0.5
+    - 0.5
+    - 0.5
+    std:
+    - 0.5
+    - 0.5
+    - 0.5
+all_sampling_transforms:
+  t0:
+    _target_: torchvision.transforms.Normalize
+    mean:
+    - -1
+    - -1
+    - -1
+    std:
+    - 2
+    - 2
+    - 2
+  t1:
+    _partial_: true
+    _target_: torch.clamp
+    min: 0
+    max: 1
+_all_callbacks:
+- _target_: models.training.callbacks.MlFlowLogMetrics
+- _target_: models.training.callbacks.SampleGrid
+  sample_every_n_epoch: 5
+  sample_kwargs:
+    sample_shape:
+    - 3
+    - 32
+    - 32
+    timesteps: 1000
+    batch_size: 128
+- _target_: lightning.pytorch.callbacks.ModelCheckpoint
+  monitor: val/loss
+  save_last: true
+  save_top_k: 3
+- _target_: models.training.callbacks.UmapGeneratorEval
+  frequency: 1
+  limit_count: 10
+  sampling_kwargs:
+    sample_shape:
+    - 3
+    - 32
+    - 32
+    timesteps: 1000
+    batch_size: 128
+_all_data_transforms:
+- _target_: torchvision.transforms.Resize
+  size:
+  - 32
+  - 32
+- _target_: torchvision.transforms.ToTensor
+- _target_: torchvision.transforms.Normalize
+  mean:
+  - 0.5
+  - 0.5
+  - 0.5
+  std:
+  - 0.5
+  - 0.5
+  - 0.5
+_all_sampling_transforms:
+- _target_: torchvision.transforms.Normalize
+  mean:
+  - -1
+  - -1
+  - -1
+  std:
+  - 2
+  - 2
+  - 2
+- _partial_: true
+  _target_: torch.clamp
+  min: 0
+  max: 1
+train:
+  lightning_dgm:
+    _target_: models.diffusions.training.LightningDiffusion
+    optim_partial:
+      _partial_: true
+      _target_: torch.optim.AdamW
+      lr: 0.0001
+    scheduler_partial:
+      _partial_: true
+      _target_: diffusers.optimization.get_cosine_schedule_with_warmup
+      num_warmup_steps: 500
+    sde:
+      _target_: models.diffusions.sdes.VpSde
+      score_net:
+        _target_: models.diffusions.networks.UNet2D
+        sample_size: 32
+        in_channels: 3
+        out_channels: 3
+        layers_per_block: 3
+        block_out_channels:
+        - 128
+        - 256
+        - 256
+        - 256
+        down_block_types:
+        - DownBlock2D
+        - DownBlock2D
+        - AttnDownBlock2D
+        - AttnDownBlock2D
+        up_block_types:
+        - AttnUpBlock2D
+        - AttnUpBlock2D
+        - UpBlock2D
+        - UpBlock2D
+    sampling_transform:
+      _target_: torchvision.transforms.Compose
+      transforms:
+      - _target_: torchvision.transforms.Normalize
+        mean:
+        - -1
+        - -1
+        - -1
+        std:
+        - 2
+        - 2
+        - 2
+      - _partial_: true
+        _target_: torch.clamp
+        min: 0
+        max: 1
+    unpack_batch:
+      _target_: data.transforms.unpack.UnpackHuggingFace
+  loader:
+    batch_size: 10
+    shuffle: true
+    num_workers: 40
+  val_loader:
+    batch_size: 10
+    num_workers: 40
+  trainer:
+    max_epochs: 1000
+    fast_dev_run: true
+    callbacks:
+    - _target_: models.training.callbacks.MlFlowLogMetrics
+    - _target_: models.training.callbacks.SampleGrid
+      sample_every_n_epoch: 5
+      sample_kwargs:
+        sample_shape:
+        - 3
+        - 32
+        - 32
+        timesteps: 1000
+        batch_size: 128
+    - _target_: lightning.pytorch.callbacks.ModelCheckpoint
+      monitor: val/loss
+      save_last: true
+      save_top_k: 3
+    - _target_: models.training.callbacks.UmapGeneratorEval
+      frequency: 1
+      limit_count: 10
+      sampling_kwargs:
+        sample_shape:
+        - 3
+        - 32
+        - 32
+        timesteps: 1000
+        batch_size: 128
+    devices: 1
+  ckpt_path: null

@@ -1,0 +1,55 @@
+---
+title: Local Intrinsic Dimension Estimation
+authors: 
+  - "Hamidreza Kamkari"
+  - "Gabriel Loaiza-Ganem"
+format:
+  html:
+    code-fold: true
+    toc: true
+    toc-title: "Overview"
+    max-width: 800px
+jupyter: python3
+---
+
+# Introduction
+
+![An illustration showing that LID is a natural measure of relative complexity. We depict two manifolds of MNIST digits, corresponding to 1s and 8s, as 1d and 2d submanifolds of $\mathbb{R}^3$, 
+respectively. The relatively simpler manifold of 1s exhibits a single factor of variation ("tilt"), whereas 8s have an additional factor of variation ("disproportionality").](../figures/main_figure_white_crop.png){#fig-lid-mnist} 
+
+High-dimensional data in deep learning applications such as images often resides on low-dimensional submanifolds, which makes learning the properties of the learned manifold by a generative model a relevant problem [@loaiza2024dgmmanifold].
+One of the most important properties of a manifold is its intrinsic dimensionality which can loosely be defined as the number of *factors of variation* that describe the data. In reality, rather than having a single manifold representing
+the data distribution, we have a collection of manifolds [@brown2022verifying] (or more recently the CW complex hypothesis [@wangcw]) that describe the data distribution. Intuitively, this means that for example for a dataset of MNIST digits, the manifold of 1s
+and 8s are different, and they might have different intrinsic dimensionalities. Therefore, instead of (global) intrinsic dimensionality, we are interested at local intrinsic dimensionality (LID) which is a property of a point with respect to the manifold 
+that contains it.
+
+
+Various definitions of intrinsic dimension exist [@hurewicz1941dimension], [@falconer2007fractal], [@lee2012smooth], we follow the standard one from geometry: a $d$-dimensional manifold is a set which is locally homeomorphic to $\mathbb{R}^d$.
+For a given disjoint union of manifolds and a point $x$ in this union, the \emph{local intrinsic dimension} of $x$ is the dimension of the manifold it belongs to. Note that LID is not an intrinsic property of the point $x$, but rather a 
+property of $x$ with respect to the manifold that contains it. Intuitively, $\text{LID}(x)$ corresponds to the number of factors of variation present in the manifold containing $x$, and it is thus a natural measure of the relative complexity of $x$,
+ as illustrated in @fig-lid-mnist.
+
+Computing the LID for a given point is a complex task. Traditional non-parametric (or model-free) methods, such as those in the [skdim-library](https://scikit-dimension.readthedocs.io/en/latest/) [@bac2021], are computationally intensive 
+and not scalable to high-dimensional data. Consequently, there is growing interest in using deep generative models for LID estimation. This approach is valuable not only for understanding the data manifold but also for *evaluating the generative model itself*. 
+Discrepancies between the model-implied LID and the ground truth can highlight model deficiencies and help us to improve the quality of generative models. 
+Here, we thoroughly explore LID methods for deep generative models with a particular focus on score-based diffusion models [@song2020score], and explore their applications in trustworthy machine learning.
+
+# What is LID Used For?
+
+
+LID estimates can be interpretated as a measure of complexity [@kamkari2024flipd] and can be useful in many scenarios.
+These estimates can also be used to detect outliers [@houle2018correlation] [@anderberg2024dimensionality] [@kamkari2024oodlid], AI-generated text [@tulchinskii2023intrinsic], and adversarial examples [@ma2018characterizing]. 
+Connections between the generalization achieved by a neural network and the LID estimates of its internal representations have also been shown [@ansuini2019intrinsic], [@birdal2021intrinsic], [@magai2022topology], [@brown2022relating].
+These insights can be leveraged to identify which representations contain maximal semantic content [@valeriani2023geometry], and help explain why LID estimates can be helpful as regularizers [@zhu2018ldmnet] and for pruning large
+ models [@xue2022searching]. LID estimation is thus not only of mathematical and statistical interest, but can also benefit the empirical performance of deep learning models at numerous tasks.
+
+# Useful links
+
+For a guide on how to use our LID estimators, check out [our notebook](../sections/lid/lid_guide.html). 
+We are also planning to release our latest work on using the Fokker-Planck equation of diffusion models to estimate LID, which we call FLIPD. When posted, it will show up [here](../sections/lid/flipd.html).
+
+<!-- 
+## References -->
+<!-- 
+::: {#refs}
+::: -->

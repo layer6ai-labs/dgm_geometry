@@ -1,0 +1,4 @@
+sample_shape:
+  - ${dataset.data_dim}
+timesteps: 1000
+batch_size: 128

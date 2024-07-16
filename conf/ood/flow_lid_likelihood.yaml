@@ -1,0 +1,103 @@
+# @package _global_
+defaults:
+  - _self_
+
+likelihood_metric:
+  _target_: metrics.likelihoods.LikelihoodMetric
+  _partial_: True
+lid_metric:
+  _target_: metrics.lids.SimpleLIDMetric
+  _partial_: True
+  lid_estimator_partial:
+    _target_: lid.flows.JacobianThresholdEstimator
+    _partial_: True
+    use_functorch: True
+    use_vmap: False
+    use_forward_mode: True
+  chunk_size: 8
+
+ood_subsample_size: 128
+ood_batch_size: 8
+
+all_callbacks:
+  lid_likelihood_in_distr_train: 
+    _target_: models.monitoring.MonitorMultiMetrics
+    device: # the device that NB estimator uses for JVP computation
+      _target_: torch.device
+      type: cuda
+    # the callback default settings
+    frequency: 1
+    verbose: True
+    save_image: ${dataset.is_image}
+    metric_names:
+      - likelihood
+      - JacobianThresholdLID
+    datapoint_metrics_partial:
+      - ${likelihood_metric}
+      - ${lid_metric} 
+    dataset: ${dataset.training_torch_data}
+    subsample_size: ${ood_subsample_size}
+    batch_size: ${ood_batch_size}
+    custom_logging_name: lid_likelihood_in_distr_train
+  lid_likelihood_in_distr_test:
+    _target_: models.monitoring.MonitorMultiMetrics
+    device: # the device that NB estimator uses for JVP computation
+      _target_: torch.device
+      type: cuda
+    # the callback default settings
+    frequency: 1
+    verbose: True
+    save_image: ${dataset.is_image}
+    metric_names:
+      - likelihood
+      - JacobianThresholdLID
+    datapoint_metrics_partial:
+      - ${likelihood_metric}
+      - ${lid_metric} 
+    dataset: ${dataset.test_torch_data}
+    subsample_size: ${ood_subsample_size}
+    batch_size: ${ood_batch_size}
+    custom_logging_name: lid_likelihood_in_distr_test
+  lid_likelihood_ood: 
+    _target_: models.monitoring.MonitorMultiMetrics
+    device: # the device that NB estimator uses for JVP computation
+      _target_: torch.device
+      type: cuda
+    # the callback default settings
+    frequency: 1
+    verbose: True
+    save_image: ${dataset.is_image}
+    metric_names:
+      - likelihood
+      - JacobianThresholdLID
+    datapoint_metrics_partial:
+      - ${likelihood_metric}
+      - ${lid_metric} 
+    dataset: ${dataset_ood.test_torch_data}
+    subsample_size: ${ood_subsample_size}
+    batch_size: ${ood_batch_size}
+    custom_logging_name: lid_likelihood_ood
+  lid_likelihood_generated:
+    _target_: models.monitoring.MonitorMultiMetrics
+    device: # the device that NB estimator uses for JVP computation
+      _target_: torch.device
+      type: cuda
+    # the callback default settings
+    frequency: 1
+    verbose: True
+    save_image: ${dataset.is_image}
+    metric_names:
+      - likelihood
+      - JacobianThresholdLID
+    datapoint_metrics_partial:
+      - ${likelihood_metric}
+      - ${lid_metric} 
+    dataset: generated
+    subsample_size: ${ood_subsample_size}
+    batch_size: ${ood_batch_size}
+    custom_logging_name: lid_likelihood_generated
+    sampling_kwargs: ${dgm.sampling_args}
+# This file models the experiments related to training a diffusion model on an Greyscale dataset such as CIFAR10
+mlflow:
+  tags:
+    task: ood_lid_likelihood_paradox

@@ -1,0 +1,37 @@
+# @package _global_
+defaults:
+  - /callbacks@all_callbacks.likelihood_in_distr_test: likelihood_flow
+  - /callbacks@all_callbacks.likelihood_in_distr_train: likelihood_flow
+  - /callbacks@all_callbacks.likelihood_ood: likelihood_flow
+  - /callbacks@all_callbacks.likelihood_generated: likelihood_flow
+  - _self_
+
+ood_subsample_size: 4096
+ood_batch_size: 128
+
+all_callbacks:
+  likelihood_in_distr_train: 
+    dataset: ${dataset.training_torch_data}
+    subsample_size: ${ood_subsample_size}
+    batch_size: ${ood_batch_size}
+    custom_logging_name: likelihood_in_distr_train
+  likelihood_in_distr_test:
+    dataset: ${dataset.test_torch_data}
+    subsample_size: ${ood_subsample_size}
+    batch_size: ${ood_batch_size}
+    custom_logging_name: likelihood_in_distr_test
+  likelihood_ood: 
+    dataset: ${dataset_ood.test_torch_data}
+    subsample_size: ${ood_subsample_size}
+    batch_size: ${ood_batch_size}
+    custom_logging_name: likelihood_ood
+  likelihood_generated:
+    dataset: generated
+    subsample_size: ${ood_subsample_size}
+    batch_size: ${ood_batch_size}
+    custom_logging_name: likelihood_generated
+    sampling_kwargs: ${dgm.sampling_args}
+# This file models the experiments related to training a diffusion model on an Greyscale dataset such as CIFAR10
+mlflow:
+  tags:
+    task: ood_likelihood_paradox

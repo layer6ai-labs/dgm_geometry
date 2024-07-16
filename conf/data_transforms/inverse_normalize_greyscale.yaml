@@ -1,0 +1,3 @@
+_target_: torchvision.transforms.Normalize
+mean: -1
+std: 2

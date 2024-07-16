@@ -1,0 +1,4 @@
+# a placeholder identity transform that can be used in place of deletion
+_target_: torchvision.transforms.Lambda
+lambd:
+  _target_: torch.nn.Identity

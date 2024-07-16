@@ -1,0 +1,14 @@
+estimator:
+  _target_:
+    lid.skdim.SkdimLIDEstimator
+  estimator_type: ESS
+  unpack:
+    _target_: lid.transforms.UnpackLID
+  _partial_: true
+preprocess_args:
+  n_neighbors: 100
+  n_jobs: 40
+estimation_args:
+  n_jobs: 40
+  dataloader_kwargs:
+    batch_size: 128

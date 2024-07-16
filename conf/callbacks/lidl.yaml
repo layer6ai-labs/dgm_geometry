@@ -1,0 +1,13 @@
+_target_: lid.callbacks.lidl.MonitorLIDL
+device:
+  _target_: torch.device
+  type: cuda
+dataset: ${dataset.train}
+
+frequency: 1
+subsample_size: 4096
+verbose: True
+save_image: False
+batch_size: 1024
+
+likelihood_estimation_args: ${dgm.likelihood_estimation_args}

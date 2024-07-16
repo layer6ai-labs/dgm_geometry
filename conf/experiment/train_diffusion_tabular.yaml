@@ -1,0 +1,12 @@
+# @package _global_
+defaults:
+  - override /dgm@dgm: diffusion
+  - override /dgm/architecture@dgm.architecture: vpsde_mlp_unet
+  - override /dgm/sampling_args@dgm.sampling_args: diffusion_tabular
+  - override /lightning_dgm: tabular_lightning_diffusion
+  
+# This file models the experiments related to training a diffusion model on an Greyscale dataset such as CIFAR10
+mlflow:
+  tags:
+    data_type: tabular
+    model: diffusion

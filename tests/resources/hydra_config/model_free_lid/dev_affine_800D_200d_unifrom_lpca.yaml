@@ -1,0 +1,94 @@
+lid_method:
+  estimator:
+    _target_: lid.skdim.SkdimLIDEstimator
+    estimator_type: lPCA
+    unpack:
+      _target_: lid.transforms.UnpackLID
+    _partial_: true
+  preprocess_args:
+    n_neighbors: 1000
+    n_jobs: 40
+  estimation_args:
+    n_jobs: 40
+    dataloader_kwargs:
+      batch_size: 128
+dataset:
+  train:
+    _target_: data.datasets.generated.LIDSyntheticDataset
+    size: 4096
+    distribution:
+      _target_: data.distributions.AffineManifoldMixture
+      manifold_dims:
+      - 200
+      ambient_dim: 800
+      sample_distr: uniform
+      affine_projection_type: random-rotation
+      distance_between_modes: 10
+      seed: 123
+  val:
+    _target_: data.datasets.generated.LIDSyntheticDataset
+    size: 1000
+    distribution:
+      _target_: data.distributions.AffineManifoldMixture
+      manifold_dims:
+      - 200
+      ambient_dim: 800
+      sample_distr: uniform
+      affine_projection_type: random-rotation
+      distance_between_modes: 10
+      seed: 123
+  data_dim: 800
+  is_tabular: true
+  is_image: false
+  training_torch_data:
+    _target_: data.datasets.generated.LIDSyntheticDataset
+    size: 4096
+    distribution:
+      _target_: data.distributions.AffineManifoldMixture
+      manifold_dims:
+      - 200
+      ambient_dim: 800
+      sample_distr: uniform
+      affine_projection_type: random-rotation
+      distance_between_modes: 10
+      seed: 123
+out_dir: ./outputs
+mlflow:
+  experiment_name: hydra_tests
+  tags:
+    data_type: tabular
+    lid_method: lpca
+    test_script: model_free_lid
+    setting: dev_affine_800D_200d_unifrom_lpca
+dev_run: false
+subsample_size: 4096
+evaluation_methods:
+- _target_: lid.evaluation.mae
+  _partial_: true
+- _target_: lid.evaluation.mse
+  _partial_: true
+- _target_: lid.evaluation.relative_bias
+  _partial_: true
+- _target_: lid.evaluation.concordance_index
+  with_equal: true
+  _partial_: true
+- _target_: lid.evaluation.concordance_index
+  with_equal: false
+  _partial_: true
+visualize_manifold: true
+Defaults:
+- /dataset@dataset
+lid_dataset:
+  _target_: data.datasets.generated.LIDSyntheticDataset
+  size: 4096
+  distribution:
+    _target_: data.distributions.AffineManifoldMixture
+    manifold_dims:
+    - 200
+    ambient_dim: 800
+    sample_distr: uniform
+    affine_projection_type: random-rotation
+    distance_between_modes: 10
+    seed: 123
+mflow:
+  experiment_name: hydra_test

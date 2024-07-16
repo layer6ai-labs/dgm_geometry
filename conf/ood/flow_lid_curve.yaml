@@ -1,0 +1,37 @@
+# @package _global_
+defaults:
+  - /callbacks@all_callbacks.lid_curve_in_distr_test: flow_jacobian_threshold_lid_curve
+  - /callbacks@all_callbacks.lid_curve_in_distr_train: flow_jacobian_threshold_lid_curve
+  - /callbacks@all_callbacks.lid_curve_ood: flow_jacobian_threshold_lid_curve
+  - /callbacks@all_callbacks.lid_curve_generated: flow_jacobian_threshold_lid_curve
+  - _self_
+
+ood_subsample_size: 128
+ood_batch_size: 8
+
+all_callbacks:
+  lid_curve_in_distr_train: 
+    dataset: ${dataset.training_torch_data}
+    subsample_size: ${ood_subsample_size}
+    batch_size: ${ood_batch_size}
+    custom_logging_name: lid_curve_in_distr_train
+  lid_curve_in_distr_test:
+    dataset: ${dataset.test_torch_data}
+    subsample_size: ${ood_subsample_size}
+    batch_size: ${ood_batch_size}
+    custom_logging_name: lid_curve_in_distr_test
+  lid_curve_ood: 
+    dataset: ${dataset_ood.test_torch_data}
+    subsample_size: ${ood_subsample_size}
+    batch_size: ${ood_batch_size}
+    custom_logging_name: lid_curve_ood
+  lid_curve_generated:
+    dataset: generated
+    subsample_size: ${ood_subsample_size}
+    batch_size: ${ood_batch_size}
+    custom_logging_name: lid_curve_generated
+    sampling_kwargs: ${dgm.sampling_args}
+# This file models the experiments related to training a diffusion model on an Greyscale dataset such as CIFAR10
+mlflow:
+  tags:
+    task: ood_lid_curve_paradox

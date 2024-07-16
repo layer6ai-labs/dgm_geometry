@@ -1,0 +1,2 @@
+_target_: data.transforms.DequantizeTransform
+num_vals: 256

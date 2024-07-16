@@ -1,0 +1,29 @@
+out_dir: ./outputs
+mlflow:
+  experiment_name: ModelFreeLID
+dev_run: false
+
+
+defaults:
+- hydra: default
+- lid_method: ess
+- dataset: lollipop
+- _self_
+
+subsample_size: 4096
+
+evaluation_methods: # all the evaluation methods that we take into account
+  - _target_: lid.evaluation.mae
+    _partial_: true
+  - _target_: lid.evaluation.mse
+    _partial_: true
+  - _target_: lid.evaluation.relative_bias
+    _partial_: true
+  - _target_: lid.evaluation.concordance_index
+    with_equal: true
+    _partial_: true
+  - _target_: lid.evaluation.concordance_index
+    with_equal: false
+    _partial_: true
+    
+visualize_manifold: true

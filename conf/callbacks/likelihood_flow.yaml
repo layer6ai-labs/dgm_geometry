@@ -1,0 +1,18 @@
+# monitoring the likelihood of different datapoints evaluated for a generative model
+_target_: models.monitoring.MonitorMultiMetrics
+device: # the device that NB estimator uses for JVP computation
+  _target_: torch.device
+  type: cuda
+dataset: ${dataset.training_torch_data}
+
+# the callback default settings
+frequency: 1
+subsample_size: 4096
+verbose: True
+save_image: ${dataset.is_image}
+batch_size: 128
+
+datapoint_metrics_partial:
+  - _target_: metrics.likelihoods.LikelihoodMetric
+    _partial_: True
+    

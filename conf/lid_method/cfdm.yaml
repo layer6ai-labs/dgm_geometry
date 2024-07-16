@@ -1,0 +1,13 @@
+estimator:
+  _target_:
+    lid.diffusions.CFDM_LID
+  beta_min: 0.1
+  beta_max: 20.
+  t_max: 1.
+  unpack:
+    _target_: lid.transforms.UnpackLID
+  _partial_: true
+estimation_args:
+  t: 0.1
+  dataloader_kwargs:
+    batch_size: 128

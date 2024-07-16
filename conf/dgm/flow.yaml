@@ -1,0 +1,5 @@
+
+defaults:
+  - architecture: flow_rgb
+  - sampling_args: flow
+  - likelihood_estimation_args: flow

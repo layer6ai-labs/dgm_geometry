@@ -1,0 +1,271 @@
+dataset:
+  train:
+    _target_: data.datasets.generated.LIDSyntheticDataset
+    size: 4096
+    distribution:
+      _target_: data.distributions.Lollipop
+      center_loc:
+      - 3.0
+      - 3.0
+      radius: 1.0
+      stick_end_loc:
+      - 1.5
+      - 1.5
+      dot_loc:
+      - 0.0
+      - 0.0
+      candy_ratio: 4
+      stick_ratio: 2
+      dot_ratio: 1
+  val:
+    _target_: data.datasets.generated.LIDSyntheticDataset
+    size: 128
+    distribution:
+      _target_: data.distributions.Lollipop
+      center_loc:
+      - 3.0
+      - 3.0
+      radius: 1.0
+      stick_end_loc:
+      - 1.5
+      - 1.5
+      dot_loc:
+      - 0.0
+      - 0.0
+      candy_ratio: 4
+      stick_ratio: 2
+      dot_ratio: 1
+  data_dim: 2
+  is_tabular: true
+  is_image: false
+  training_torch_data:
+    _target_: data.datasets.generated.LIDSyntheticDataset
+    size: 4096
+    distribution:
+      _target_: data.distributions.Lollipop
+      center_loc:
+      - 3.0
+      - 3.0
+      radius: 1.0
+      stick_end_loc:
+      - 1.5
+      - 1.5
+      dot_loc:
+      - 0.0
+      - 0.0
+      candy_ratio: 4
+      stick_ratio: 2
+      dot_ratio: 1
+dgm:
+  architecture:
+    _target_: nflows.flows.base.Flow
+    transform:
+      _target_: models.flows.diffeomorphisms.RQNSF
+      dim: 2
+      n_hidden: 64
+      n_blocks: 2
+      tails: linear
+      num_bins: 32
+      tail_bound: 10.0
+      data_type: tabular
+      n_transforms: 10
+      include_actnorm: true
+    distribution:
+      _target_: nflows.distributions.StandardNormal
+      shape:
+      - 2
+  sampling_args: {}
+  likelihood_estimation_args: {}
+lightning_dgm:
+  _target_: lid.ensembles.LightningLIDL
+  sampling_transform:
+    _target_: torchvision.transforms.Compose
+    transforms: []
+  lightning_dgm_partial:
+    _target_: models.flows.training.LightningFlow
+    _partial_: true
+    normalizing_flow:
+      _target_: nflows.flows.base.Flow
+      transform:
+        _target_: models.flows.diffeomorphisms.RQNSF
+        dim: 2
+        n_hidden: 64
+        n_blocks: 2
+        tails: linear
+        num_bins: 32
+        tail_bound: 10.0
+        data_type: tabular
+        n_transforms: 10
+        include_actnorm: true
+      distribution:
+        _target_: nflows.distributions.StandardNormal
+        shape:
+        - 2
+    unpack_batch:
+      _target_: lid.transforms.UnpackLID
+  optim_partial:
+    _partial_: true
+    _target_: torch.optim.AdamW
+    lr: 0.0001
+dev_run: false
+out_dir: ./outputs
+mlflow:
+  experiment_name: hydra_tests
+  tags:
+    data_type: tabular
+    model: flow
+    ensemble: true
+    test_script: train
+    setting: dev_lidl_lollipop
+  pytorch_autolog:
+    disable: false
+    log_models: false
+all_callbacks:
+  lidl:
+    _target_: lid.callbacks.lidl.MonitorLIDL
+    device:
+      _target_: torch.device
+      type: cuda
+    dataset:
+      _target_: data.datasets.generated.LIDSyntheticDataset
+      size: 4096
+      distribution:
+        _target_: data.distributions.Lollipop
+        center_loc:
+        - 3.0
+        - 3.0
+        radius: 1.0
+        stick_end_loc:
+        - 1.5
+        - 1.5
+        dot_loc:
+        - 0.0
+        - 0.0
+        candy_ratio: 4
+        stick_ratio: 2
+        dot_ratio: 1
+    frequency: 1
+    subsample_size: 4096
+    verbose: true
+    save_image: false
+    batch_size: 1024
+    likelihood_estimation_args: {}
+  umap:
+    _target_: models.training.callbacks.UmapGeneratorEval
+    frequency: 10
+    limit_count: 1024
+    sampling_kwargs: {}
+all_data_transforms: {}
+all_sampling_transforms: {}
+_all_callbacks:
+- _target_: lid.callbacks.lidl.MonitorLIDL
+  device:
+    _target_: torch.device
+    type: cuda
+  dataset:
+    _target_: data.datasets.generated.LIDSyntheticDataset
+    size: 4096
+    distribution:
+      _target_: data.distributions.Lollipop
+      center_loc:
+      - 3.0
+      - 3.0
+      radius: 1.0
+      stick_end_loc:
+      - 1.5
+      - 1.5
+      dot_loc:
+      - 0.0
+      - 0.0
+      candy_ratio: 4
+      stick_ratio: 2
+      dot_ratio: 1
+  frequency: 1
+  subsample_size: 4096
+  verbose: true
+  save_image: false
+  batch_size: 1024
+  likelihood_estimation_args: {}
+- _target_: models.training.callbacks.UmapGeneratorEval
+  frequency: 10
+  limit_count: 1024
+  sampling_kwargs: {}
+_all_data_transforms: []
+_all_sampling_transforms: []
+train:
+  lightning_dgm:
+    _target_: lid.ensembles.LightningLIDL
+    sampling_transform:
+      _target_: torchvision.transforms.Compose
+      transforms: []
+    lightning_dgm_partial:
+      _target_: models.flows.training.LightningFlow
+      _partial_: true
+      normalizing_flow:
+        _target_: nflows.flows.base.Flow
+        transform:
+          _target_: models.flows.diffeomorphisms.RQNSF
+          dim: 2
+          n_hidden: 64
+          n_blocks: 2
+          tails: linear
+          num_bins: 32
+          tail_bound: 10.0
+          data_type: tabular
+          n_transforms: 10
+          include_actnorm: true
+        distribution:
+          _target_: nflows.distributions.StandardNormal
+          shape:
+          - 2
+      unpack_batch:
+        _target_: lid.transforms.UnpackLID
+    optim_partial:
+      _partial_: true
+      _target_: torch.optim.AdamW
+      lr: 0.0001
+  loader:
+    batch_size: 10
+    shuffle: true
+    num_workers: 40
+  val_loader:
+    batch_size: 10
+    num_workers: 40
+  trainer:
+    max_epochs: 1000
+    fast_dev_run: true
+    callbacks:
+    - _target_: lid.callbacks.lidl.MonitorLIDL
+      device:
+        _target_: torch.device
+        type: cuda
+      dataset:
+        _target_: data.datasets.generated.LIDSyntheticDataset
+        size: 4096
+        distribution:
+          _target_: data.distributions.Lollipop
+          center_loc:
+          - 3.0
+          - 3.0
+          radius: 1.0
+          stick_end_loc:
+          - 1.5
+          - 1.5
+          dot_loc:
+          - 0.0
+          - 0.0
+          candy_ratio: 4
+          stick_ratio: 2
+          dot_ratio: 1
+      frequency: 1
+      subsample_size: 4096
+      verbose: true
+      save_image: false
+      batch_size: 1024
+      likelihood_estimation_args: {}
+    - _target_: models.training.callbacks.UmapGeneratorEval
+      frequency: 10
+      limit_count: 1024
+      sampling_kwargs: {}
+    devices: 1
+  ckpt_path: null

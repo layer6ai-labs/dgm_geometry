@@ -1,0 +1,20 @@
+# @package _global_
+defaults:
+  - /callbacks@all_callbacks.log_metrics: log_metrics
+  - /callbacks@all_callbacks.sample_grid: sample_grid
+  - /callbacks@all_callbacks.checkpoint: checkpoint
+  - /data_transforms@all_data_transforms.t0: resize
+  - /data_transforms@all_data_transforms.t1: greyscale
+  - /data_transforms@all_data_transforms.t2: to_tensor
+  - /data_transforms@all_data_transforms.t3: zero_center_normalize_greyscale
+  - /data_transforms@all_sampling_transforms.t0: inverse_normalize_greyscale
+  - /data_transforms@all_sampling_transforms.t1: clamp
+  - override /dgm@dgm: diffusion
+  - override /dgm/architecture@dgm.architecture: diffusion_greyscale
+  - override /dgm/sampling_args@dgm.sampling_args: diffusion_greyscale
+  - override /lightning_dgm: image_lightning_diffusion
+# This file models the experiments related to training a diffusion model on an Greyscale dataset such as FMNIST/MNIST
+mlflow:
+  tags:
+    data_type: image_grayscale
+    model: diffusion

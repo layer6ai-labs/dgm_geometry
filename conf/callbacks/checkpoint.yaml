@@ -1,0 +1,4 @@
+_target_: lightning.pytorch.callbacks.ModelCheckpoint
+monitor: val/loss
+save_last: true
+save_top_k: 3

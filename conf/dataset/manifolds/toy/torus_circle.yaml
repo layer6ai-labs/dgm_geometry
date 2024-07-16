@@ -1,0 +1,21 @@
+train:
+  _target_: data.datasets.generated.LIDSyntheticDataset
+  size: 1000000
+  distribution:
+    _target_: data.distributions.Torus
+    major_r: 10.0
+    minor_r: 1.0
+    include_circle: True
+    mix_ratio: 0.5
+
+
+val:
+  _target_: data.datasets.generated.LIDSyntheticDataset
+  size: 1000
+  distribution: ${dataset.train.distribution}
+
+
+data_dim: 3
+is_tabular: true
+is_image: false
+training_torch_data: ${dataset.train}

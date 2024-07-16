@@ -1,0 +1,11 @@
+# @package _global_
+defaults:
+  - override /dgm@dgm: flow
+  - override /dgm/architecture@dgm.architecture: flow_tabular
+  - override /lightning_dgm: tabular_lightning_flow
+  
+# This file models the experiments related to training a diffusion model on an Greyscale dataset such as CIFAR10
+mlflow:
+  tags:
+    data_type: tabular
+    model: flow

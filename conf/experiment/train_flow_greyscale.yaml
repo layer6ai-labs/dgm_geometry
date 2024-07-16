@@ -1,0 +1,24 @@
+# @package _global_
+defaults:
+  - /data_transforms@all_data_transforms.t0: resize
+  - /data_transforms@all_data_transforms.t1: greyscale
+  - /data_transforms@all_data_transforms.t2: to_tensor  
+  - /data_transforms@all_data_transforms.t3: dequantize_image
+  - /data_transforms@all_data_transforms.t4: logit_transform
+  - /data_transforms@all_sampling_transforms.t0: sigmoid_transform
+  - /data_transforms@all_sampling_transforms.t1: quantize_image
+  - /data_transforms@all_sampling_transforms.t2: clamp
+  - /callbacks@all_callbacks.sample_grid: sample_grid
+  - override /dgm@dgm: flow
+  - override /dgm/architecture@dgm.architecture: flow_greyscale
+  - override /lightning_dgm: image_lightning_flow
+
+train:
+  trainer:
+    gradient_clip_val: 1.0
+
+# This file models the experiments related to training a flow model on an Greyscale dataset such as FMNIST/MNIST
+mlflow:
+  tags:
+    data_type: image_grayscale
+    model: flow

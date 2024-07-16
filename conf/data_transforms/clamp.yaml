@@ -1,0 +1,4 @@
+_partial_: true
+_target_: torch.clamp
+min: 0
+max: 1

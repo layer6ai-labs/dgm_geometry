@@ -1,0 +1,25 @@
+_target_: nflows.flows.base.Flow # Use Nflows flow
+transform:
+  _target_: models.flows.diffeomorphisms.MultiscaleImageFlow
+  H: ${dataset.image_size}
+  W: ${dataset.image_size}
+  C: 1
+  squeezing_factors: [2, 2, 7]
+  n_blocks: 7  # The size of each block, i.e., the number of compositions (1x1 conv -> coupling -> actnorm) that make up a block
+  coupling_partial:
+    _target_: models.flows.diffeomorphisms.RQNSF
+    _partial_: true
+    n_hidden: 64
+    n_blocks: 2
+    activation:
+      _target_: torch.nn.functional.relu
+      _partial_: true
+    dropout_probability: 0.2
+    use_batch_norm: False
+    tails: linear
+    num_bins: 2
+    tail_bound: 1.0
+    data_type: image
+distribution: 
+  _target_: nflows.distributions.StandardNormal
+  shape: [784]

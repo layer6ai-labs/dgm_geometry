@@ -1,0 +1,27 @@
+# monitoring the likelihood of different datapoints evaluated for a generative model
+_target_: models.monitoring.MonitorMultiMetrics
+device: # the device that NB estimator uses for JVP computation
+  _target_: torch.device
+  type: cuda
+dataset: ${dataset.training_torch_data}
+
+# the callback default settings
+frequency: 1
+subsample_size: 128
+verbose: True
+save_image: ${dataset.is_image}
+batch_size: 8
+
+metric_names:
+  - JacobianThresholdLID
+datapoint_metrics_partial:
+  - _target_: metrics.lids.SimpleLIDMetric
+    _partial_: True
+    lid_estimator_partial:
+      _target_: lid.flows.JacobianThresholdEstimator
+      _partial_: True
+      use_functorch: True
+      use_vmap: False
+      use_forward_mode: True
+    chunk_size: 8
+    singular_value_threshold: -3

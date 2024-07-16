@@ -1,0 +1,17 @@
+# @package _global_
+Defaults:
+  - /dataset@dataset # inherit the dataset subdir from the dataset config
+
+
+# change the data count to 4096
+dataset:
+  train:
+    size: ${subsample_size}
+
+lid_dataset: ${dataset.train}
+
+# This file models the experiments related to training a diffusion model on an Greyscale dataset such as CIFAR10
+mlflow:
+  tags:
+    data_type: tabular
+    lid_method: ${hydra:runtime.choices.lid_method}

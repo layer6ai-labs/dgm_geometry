@@ -1,0 +1,4 @@
+_target_: torchvision.transforms.Lambda
+lambd:
+  _target_: torch.flatten
+  _partial_: true

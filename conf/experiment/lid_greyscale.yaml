@@ -1,0 +1,26 @@
+# @package _global_
+defaults:
+  - /data_transforms@all_data_transforms.t0: resize
+  - /data_transforms@all_data_transforms.t1: greyscale
+  - /data_transforms@all_data_transforms.t2: to_tensor
+
+# add all the data transforms sorted according to their t0, t1, t2, ...
+_all_data_transforms: ${oc.dict.values:all_data_transforms}
+
+dataset:
+  train:
+    subset_size: ${subsample_size}
+
+lid_dataset:
+  _target_: data.datasets.TorchHuggingFaceDatasetWrapper
+  hugging_face_dataset: ${dataset.train}
+
+lid_method:
+  estimator:
+    unpack: null
+
+# This file models the experiments related to training a diffusion model on an Greyscale dataset such as CIFAR10
+mlflow:
+  tags:
+    data_type: image
+    lid_method: ${hydra:runtime.choices.lid_method}

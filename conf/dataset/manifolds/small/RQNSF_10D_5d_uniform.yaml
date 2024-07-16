@@ -1,0 +1,32 @@
+
+
+val:
+  _target_: data.datasets.generated.LIDSyntheticDataset
+  size: 1000
+  distribution: ${dataset.train.distribution}
+
+rq_nsf_instantiator:
+  _target_: models.flows.diffeomorphisms.RQNSF
+  _partial_: true
+  n_transforms: 5
+  n_hidden: 32
+  n_blocks: 32 
+
+data_dim: 10
+is_tabular: true
+is_image: false
+training_torch_data: ${dataset.train}
+
+train:
+  _target_: data.datasets.generated.LIDSyntheticDataset
+  size: 500000
+  distribution:
+    _target_: data.distributions.ManifoldMixture
+    manifold_dims: [5]
+    ambient_dim: 10
+    diffeomorphism_instantiator:
+      - ${dataset.rq_nsf_instantiator}
+    sample_distr: uniform
+    distance_between_modes: 10
+    seed: 123
+  standardize: true

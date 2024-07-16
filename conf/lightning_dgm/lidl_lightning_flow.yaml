@@ -1,0 +1,22 @@
+_target_: lid.ensembles.LightningLIDL
+
+sampling_transform: # Should reverse the dataset transform (and clamp if necessary)
+  _target_: torchvision.transforms.Compose
+  transforms: ${_all_sampling_transforms}
+
+lightning_dgm_partial:
+  _target_: models.flows.training.LightningFlow
+  _partial_: true
+
+  normalizing_flow: ${dgm.architecture}
+
+
+
+  unpack_batch: 
+    _target_: lid.transforms.UnpackLID
+
+# propagate the same optimizer to everything!
+optim_partial:
+  _partial_: true
+  _target_: torch.optim.AdamW
+  lr: 1e-4

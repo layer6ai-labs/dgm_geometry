@@ -1,0 +1,293 @@
+dataset:
+  train:
+    _target_: data.datasets.generated.LIDSyntheticDataset
+    size: 1000000
+    distribution:
+      _target_: data.distributions.Lollipop
+      center_loc:
+      - 3.0
+      - 3.0
+      radius: 1.0
+      stick_end_loc:
+      - 1.5
+      - 1.5
+      dot_loc:
+      - 0.0
+      - 0.0
+      candy_ratio: 4
+      stick_ratio: 2
+      dot_ratio: 1
+  val:
+    _target_: data.datasets.generated.LIDSyntheticDataset
+    size: 1000
+    distribution:
+      _target_: data.distributions.Lollipop
+      center_loc:
+      - 3.0
+      - 3.0
+      radius: 1.0
+      stick_end_loc:
+      - 1.5
+      - 1.5
+      dot_loc:
+      - 0.0
+      - 0.0
+      candy_ratio: 4
+      stick_ratio: 2
+      dot_ratio: 1
+  data_dim: 2
+  is_tabular: true
+  is_image: false
+  training_torch_data:
+    _target_: data.datasets.generated.LIDSyntheticDataset
+    size: 1000000
+    distribution:
+      _target_: data.distributions.Lollipop
+      center_loc:
+      - 3.0
+      - 3.0
+      radius: 1.0
+      stick_end_loc:
+      - 1.5
+      - 1.5
+      dot_loc:
+      - 0.0
+      - 0.0
+      candy_ratio: 4
+      stick_ratio: 2
+      dot_ratio: 1
+dgm:
+  architecture:
+    _target_: models.diffusions.sdes.VpSde
+    score_net:
+      _target_: models.diffusions.networks.MLPUnet
+      data_dim: 2
+      hidden_sizes:
+      - 4096
+      - 2048
+      - 1024
+      - 1024
+      - 512
+      - 512
+      time_embedding_dim: 128
+  sampling_args:
+    sample_shape:
+    - 2
+    timesteps: 1000
+    batch_size: 128
+  likelihood_estimation_args: {}
+lightning_dgm:
+  _target_: models.diffusions.training.LightningDiffusion
+  optim_partial:
+    _partial_: true
+    _target_: torch.optim.AdamW
+    lr: 0.0001
+  scheduler_partial:
+    _partial_: true
+    _target_: diffusers.optimization.get_cosine_schedule_with_warmup
+    num_warmup_steps: 500
+  sde:
+    _target_: models.diffusions.sdes.VpSde
+    score_net:
+      _target_: models.diffusions.networks.MLPUnet
+      data_dim: 2
+      hidden_sizes:
+      - 4096
+      - 2048
+      - 1024
+      - 1024
+      - 512
+      - 512
+      time_embedding_dim: 128
+  sampling_transform:
+    _target_: torchvision.transforms.Compose
+    transforms: []
+  unpack_batch:
+    _target_: data.transforms.unpack.UnpackTabular
+dev_run: false
+out_dir: ./outputs
+mlflow:
+  experiment_name: hydra_tests
+  tags:
+    data_type: tabular
+    model: diffusion
+    test_script: train
+    setting: dev_normal_bundles_lollipop
+  pytorch_autolog:
+    disable: false
+    log_models: false
+all_callbacks:
+  lid:
+    _target_: lid.callbacks.monitor_lid_curve.MonitorLIDCurve
+    device:
+      _target_: torch.device
+      type: cuda
+    dataset:
+      _target_: data.datasets.generated.LIDSyntheticDataset
+      size: 1000000
+      distribution:
+        _target_: data.distributions.Lollipop
+        center_loc:
+        - 3.0
+        - 3.0
+        radius: 1.0
+        stick_end_loc:
+        - 1.5
+        - 1.5
+        dot_loc:
+        - 0.0
+        - 0.0
+        candy_ratio: 4
+        stick_ratio: 2
+        dot_ratio: 1
+    sweeping_arg: singular_value_threshold
+    sweeping_range:
+      _target_: numpy.linspace
+      start: -10
+      stop: 5
+      num: 50
+    use_artifact: true
+    lid_estimator_partial:
+      _target_: lid.diffusions.NormalBundleEstimator
+      _partial_: true
+      ambient_dim: 2
+    frequency: 1
+    subsample_size: 128
+    verbose: true
+    save_image: false
+    batch_size: 8
+    lid_preprocessing_args:
+      num_scores: null
+      score_batch_size: 128
+      noise_time: 0.1
+all_data_transforms: {}
+all_sampling_transforms: {}
+_all_callbacks:
+- _target_: lid.callbacks.monitor_lid_curve.MonitorLIDCurve
+  device:
+    _target_: torch.device
+    type: cuda
+  dataset:
+    _target_: data.datasets.generated.LIDSyntheticDataset
+    size: 1000000
+    distribution:
+      _target_: data.distributions.Lollipop
+      center_loc:
+      - 3.0
+      - 3.0
+      radius: 1.0
+      stick_end_loc:
+      - 1.5
+      - 1.5
+      dot_loc:
+      - 0.0
+      - 0.0
+      candy_ratio: 4
+      stick_ratio: 2
+      dot_ratio: 1
+  sweeping_arg: singular_value_threshold
+  sweeping_range:
+    _target_: numpy.linspace
+    start: -10
+    stop: 5
+    num: 50
+  use_artifact: true
+  lid_estimator_partial:
+    _target_: lid.diffusions.NormalBundleEstimator
+    _partial_: true
+    ambient_dim: 2
+  frequency: 1
+  subsample_size: 128
+  verbose: true
+  save_image: false
+  batch_size: 8
+  lid_preprocessing_args:
+    num_scores: null
+    score_batch_size: 128
+    noise_time: 0.1
+_all_data_transforms: []
+_all_sampling_transforms: []
+train:
+  lightning_dgm:
+    _target_: models.diffusions.training.LightningDiffusion
+    optim_partial:
+      _partial_: true
+      _target_: torch.optim.AdamW
+      lr: 0.0001
+    scheduler_partial:
+      _partial_: true
+      _target_: diffusers.optimization.get_cosine_schedule_with_warmup
+      num_warmup_steps: 500
+    sde:
+      _target_: models.diffusions.sdes.VpSde
+      score_net:
+        _target_: models.diffusions.networks.MLPUnet
+        data_dim: 2
+        hidden_sizes:
+        - 4096
+        - 2048
+        - 1024
+        - 1024
+        - 512
+        - 512
+        time_embedding_dim: 128
+    sampling_transform:
+      _target_: torchvision.transforms.Compose
+      transforms: []
+    unpack_batch:
+      _target_: data.transforms.unpack.UnpackTabular
+  loader:
+    batch_size: 10
+    shuffle: true
+    num_workers: 40
+  val_loader:
+    batch_size: 10
+    num_workers: 40
+  trainer:
+    max_epochs: 1000
+    fast_dev_run: true
+    callbacks:
+    - _target_: lid.callbacks.monitor_lid_curve.MonitorLIDCurve
+      device:
+        _target_: torch.device
+        type: cuda
+      dataset:
+        _target_: data.datasets.generated.LIDSyntheticDataset
+        size: 1000000
+        distribution:
+          _target_: data.distributions.Lollipop
+          center_loc:
+          - 3.0
+          - 3.0
+          radius: 1.0
+          stick_end_loc:
+          - 1.5
+          - 1.5
+          dot_loc:
+          - 0.0
+          - 0.0
+          candy_ratio: 4
+          stick_ratio: 2
+          dot_ratio: 1
+      sweeping_arg: singular_value_threshold
+      sweeping_range:
+        _target_: numpy.linspace
+        start: -10
+        stop: 5
+        num: 50
+      use_artifact: true
+      lid_estimator_partial:
+        _target_: lid.diffusions.NormalBundleEstimator
+        _partial_: true
+        ambient_dim: 2
+      frequency: 1
+      subsample_size: 128
+      verbose: true
+      save_image: false
+      batch_size: 8
+      lid_preprocessing_args:
+        num_scores: null
+        score_batch_size: 128
+        noise_time: 0.1
+    devices: 1
+  ckpt_path: null

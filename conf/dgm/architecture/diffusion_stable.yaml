@@ -1,0 +1,5 @@
+_target_: models.diffusions.stable.StableDiffusionSde
+pipeline:
+  _target_: diffusers.StableDiffusionPipeline.from_pretrained
+  pretrained_model_name_or_path: runwayml/stable-diffusion-v1-5
+  safety_checker: null

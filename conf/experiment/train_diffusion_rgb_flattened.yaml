@@ -1,0 +1,27 @@
+
+# @package _global_
+defaults:
+  - /callbacks@all_callbacks.log_metrics: log_metrics
+  - /callbacks@all_callbacks.sample_grid: sample_grid
+  - /callbacks@all_callbacks.checkpoint: checkpoint
+  - /data_transforms@all_data_transforms.t0: resize
+  - /data_transforms@all_data_transforms.t1: to_tensor
+  - /data_transforms@all_data_transforms.t2: zero_center_normalize_rgb
+  - /data_transforms@all_data_transforms.t3: flatten
+  - /data_transforms@all_sampling_transforms.t0: unflatten_3_32_32
+  - /data_transforms@all_sampling_transforms.t1: inverse_normalize_rgb
+  - /data_transforms@all_sampling_transforms.t2: clamp
+  - override /dgm@dgm: diffusion
+  - override /dgm/architecture@dgm.architecture: vpsde_mlp_unet
+  - override /dgm/sampling_args@dgm.sampling_args: diffusion_tabular
+  - override /lightning_dgm: tabular_lightning_diffusion
+
+# This file models the experiments related to training a diffusion model on an Greyscale dataset such as FMNIST/MNIST
+mlflow:
+  tags:
+    data_type: image_rgb_flattened
+    model: diffusion
+  
+lightning_dgm:
+  unpack_batch: # Should reverse the dataset transform
+    _target_: data.transforms.unpack.UnpackHuggingFace

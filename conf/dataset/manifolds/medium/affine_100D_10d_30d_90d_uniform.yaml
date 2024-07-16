@@ -1,0 +1,24 @@
+train:
+  _target_: data.datasets.generated.LIDSyntheticDataset
+  size: 500000
+  distribution:
+    _target_: data.distributions.AffineManifoldMixture
+    manifold_dims: [10, 30, 90]
+    ambient_dim: 100
+    sample_distr: uniform
+    affine_projection_type: random-rotation
+    distance_between_modes: 10
+    seed: 123
+  standardize: true
+
+
+val:
+  _target_: data.datasets.generated.LIDSyntheticDataset
+  size: 1000
+  distribution: ${dataset.train.distribution}
+
+
+data_dim: 100
+is_tabular: true
+is_image: false
+training_torch_data: ${dataset.train}

@@ -1,0 +1,16 @@
+_target_: nflows.flows.base.Flow # Use Nflows flow
+transform:
+  _target_: models.flows.diffeomorphisms.RQNSF
+  dim: ${dataset.data_dim}
+  n_hidden: 64
+  n_blocks: 2
+  tails: linear
+  num_bins: 32
+  tail_bound: 10.0
+  data_type: tabular
+  n_transforms: 10
+  include_actnorm: true
+distribution: 
+  _target_: nflows.distributions.StandardNormal
+  shape: 
+    - ${dataset.data_dim}

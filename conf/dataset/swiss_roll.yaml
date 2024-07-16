@@ -1,0 +1,19 @@
+train:
+  _target_: data.datasets.generated.LIDSyntheticDataset
+  size: 500000
+  distribution:
+    _target_: data.distributions.SwissRoll
+    noise: 0
+    hole: false
+
+
+val:
+  _target_: data.datasets.generated.LIDSyntheticDataset
+  size: 1000
+  distribution: ${dataset.train.distribution}
+
+
+data_dim: 3
+is_tabular: true
+is_image: false
+training_torch_data: ${dataset.train}

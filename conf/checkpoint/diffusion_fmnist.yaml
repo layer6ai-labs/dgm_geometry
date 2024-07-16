@@ -1,0 +1,12 @@
+# @package _global_
+
+train:
+  trainer:
+    max_epochs: ${oc.decode:${oc.env:DIFFUSION_FMNIST_CHECKPOINT_N_EPOCH}}
+    limit_train_batches: 1
+    limit_val_batches: 1
+  ckpt_path: '${oc.env:DIFFUSION_FMNIST_CHECKPOINT}' # this should be set in your .env
+
+all_callbacks:
+  sample_grid:
+    sample_every_n_epoch: 1

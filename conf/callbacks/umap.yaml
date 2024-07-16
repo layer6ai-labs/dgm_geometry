@@ -1,0 +1,4 @@
+_target_: models.training.callbacks.UmapGeneratorEval
+frequency: 10
+limit_count: 1024
+sampling_kwargs: ${dgm.sampling_args}

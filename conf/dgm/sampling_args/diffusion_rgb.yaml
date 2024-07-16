@@ -1,0 +1,6 @@
+sample_shape:
+  - 3
+  - ${dataset.image_size}
+  - ${dataset.image_size}
+timesteps: 1000
+batch_size: 128

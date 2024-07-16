@@ -1,0 +1,44 @@
+project:
+  type: website
+  output-dir: _output
+  preview:
+    port: 4200
+
+website:
+  title: "Geometry of Deep Generative Models"
+  navbar:
+    tools:
+      - icon: github
+        href: https://github.com/blross/dgm-geometry
+    left:
+      - text: Home
+        href: index.qmd
+      - text: "Out-of-distribution detection"
+        href: "sections/ood.qmd"
+      - text: "Local Intrinsic Dimension"
+        href: "sections/lid.qmd"
+  sidebar:
+    style: docked
+    search: false
+    contents:
+      - section: "Out-of-distribution detection"
+        href: "sections/ood.qmd"
+        contents:
+          - "sections/ood/ood_guide.ipynb"
+      - section: "Local Intrinsic Dimension"
+        href: "sections/lid.qmd"
+        contents:
+          - "sections/lid/manifold_datasets.ipynb"
+          - "sections/lid/lid_guide.ipynb"
+          - "sections/lid/flipd.ipynb"
+
+          
+toc: true
+number-sections: true
+bibliography: references.bib  
+  
+format:
+  html:
+    html-math-method: katex
+    theme: sandstone
+    css: styles.css

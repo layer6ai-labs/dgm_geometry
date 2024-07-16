@@ -1,0 +1,313 @@
+dataset:
+  train:
+    _target_: data.datasets.HuggingFaceDataset
+    dataset:
+      _target_: datasets.load_dataset
+      path: fashion_mnist
+      split: train
+      trust_remote_code: true
+    transform:
+      _target_: torchvision.transforms.Compose
+      transforms:
+      - _target_: torchvision.transforms.Resize
+        size:
+        - 28
+        - 28
+      - _target_: torchvision.transforms.Grayscale
+      - _target_: torchvision.transforms.ToTensor
+      - _target_: data.transforms.DequantizeTransform
+        num_vals: 256
+      - _target_: data.transforms.LogitTransform
+        alpha: 0.05
+        eps: 1.0e-06
+  val:
+    _target_: data.datasets.HuggingFaceDataset
+    dataset:
+      _target_: datasets.load_dataset
+      path: fashion_mnist
+      split: test
+      trust_remote_code: true
+    transform:
+      _target_: torchvision.transforms.Compose
+      transforms:
+      - _target_: torchvision.transforms.Resize
+        size:
+        - 28
+        - 28
+      - _target_: torchvision.transforms.Grayscale
+      - _target_: torchvision.transforms.ToTensor
+      - _target_: data.transforms.DequantizeTransform
+        num_vals: 256
+      - _target_: data.transforms.LogitTransform
+        alpha: 0.05
+        eps: 1.0e-06
+  data_dim: 784
+  image_size: 28
+  is_tabular: false
+  is_image: true
+  training_torch_data:
+    _target_: data.datasets.TorchHuggingFaceDatasetWrapper
+    hugging_face_dataset:
+      _target_: data.datasets.HuggingFaceDataset
+      dataset:
+        _target_: datasets.load_dataset
+        path: fashion_mnist
+        split: train
+        trust_remote_code: true
+      transform:
+        _target_: torchvision.transforms.Compose
+        transforms:
+        - _target_: torchvision.transforms.Resize
+          size:
+          - 28
+          - 28
+        - _target_: torchvision.transforms.Grayscale
+        - _target_: torchvision.transforms.ToTensor
+        - _target_: data.transforms.DequantizeTransform
+          num_vals: 256
+        - _target_: data.transforms.LogitTransform
+          alpha: 0.05
+          eps: 1.0e-06
+  test_torch_data:
+    _target_: data.datasets.TorchHuggingFaceDatasetWrapper
+    hugging_face_dataset:
+      _target_: data.datasets.HuggingFaceDataset
+      dataset:
+        _target_: datasets.load_dataset
+        path: fashion_mnist
+        split: test
+        trust_remote_code: true
+      transform:
+        _target_: torchvision.transforms.Compose
+        transforms:
+        - _target_: torchvision.transforms.Resize
+          size:
+          - 28
+          - 28
+        - _target_: torchvision.transforms.Grayscale
+        - _target_: torchvision.transforms.ToTensor
+        - _target_: data.transforms.DequantizeTransform
+          num_vals: 256
+        - _target_: data.transforms.LogitTransform
+          alpha: 0.05
+          eps: 1.0e-06
+dgm:
+  architecture:
+    _target_: nflows.flows.base.Flow
+    transform:
+      _target_: models.flows.diffeomorphisms.MultiscaleImageFlow
+      H: 28
+      W: 28
+      C: 1
+      squeezing_factors:
+      - 2
+      - 2
+      - 7
+      n_blocks: 7
+      coupling_partial:
+        _target_: models.flows.diffeomorphisms.RQNSF
+        _partial_: true
+        n_hidden: 64
+        n_blocks: 2
+        activation:
+          _target_: torch.nn.functional.relu
+          _partial_: true
+        dropout_probability: 0.2
+        use_batch_norm: false
+        tails: linear
+        num_bins: 2
+        tail_bound: 1.0
+        data_type: image
+    distribution:
+      _target_: nflows.distributions.StandardNormal
+      shape:
+      - 784
+  sampling_args: {}
+  likelihood_estimation_args: {}
+lightning_dgm:
+  _target_: models.flows.training.LightningFlow
+  optim_partial:
+    _partial_: true
+    _target_: torch.optim.AdamW
+    lr: 0.001
+  normalizing_flow:
+    _target_: nflows.flows.base.Flow
+    transform:
+      _target_: models.flows.diffeomorphisms.MultiscaleImageFlow
+      H: 28
+      W: 28
+      C: 1
+      squeezing_factors:
+      - 2
+      - 2
+      - 7
+      n_blocks: 7
+      coupling_partial:
+        _target_: models.flows.diffeomorphisms.RQNSF
+        _partial_: true
+        n_hidden: 64
+        n_blocks: 2
+        activation:
+          _target_: torch.nn.functional.relu
+          _partial_: true
+        dropout_probability: 0.2
+        use_batch_norm: false
+        tails: linear
+        num_bins: 2
+        tail_bound: 1.0
+        data_type: image
+    distribution:
+      _target_: nflows.distributions.StandardNormal
+      shape:
+      - 784
+  sampling_transform:
+    _target_: torchvision.transforms.Compose
+    transforms:
+    - _target_: data.transforms.SigmoidTransform
+      alpha: 0.05
+    - _target_: data.transforms.QuantizeTransform
+      num_vals: 256
+    - _partial_: true
+      _target_: torch.clamp
+      min: 0
+      max: 1
+  unpack_batch:
+    _target_: data.transforms.unpack.UnpackHuggingFace
+dev_run: false
+out_dir: ./outputs
+mlflow:
+  experiment_name: hydra_tests
+  tags:
+    data_type: image_grayscale
+    model: flow
+    test_script: train
+    setting: dev_fmnist_flow
+  pytorch_autolog:
+    disable: false
+    log_models: false
+all_callbacks:
+  sample_grid:
+    _target_: models.training.callbacks.SampleGrid
+    sample_every_n_epoch: 5
+    sample_kwargs: {}
+all_data_transforms:
+  t0:
+    _target_: torchvision.transforms.Resize
+    size:
+    - 28
+    - 28
+  t1:
+    _target_: torchvision.transforms.Grayscale
+  t2:
+    _target_: torchvision.transforms.ToTensor
+  t3:
+    _target_: data.transforms.DequantizeTransform
+    num_vals: 256
+  t4:
+    _target_: data.transforms.LogitTransform
+    alpha: 0.05
+    eps: 1.0e-06
+all_sampling_transforms:
+  t0:
+    _target_: data.transforms.SigmoidTransform
+    alpha: 0.05
+  t1:
+    _target_: data.transforms.QuantizeTransform
+    num_vals: 256
+  t2:
+    _partial_: true
+    _target_: torch.clamp
+    min: 0
+    max: 1
+_all_callbacks:
+- _target_: models.training.callbacks.SampleGrid
+  sample_every_n_epoch: 5
+  sample_kwargs: {}
+_all_data_transforms:
+- _target_: torchvision.transforms.Resize
+  size:
+  - 28
+  - 28
+- _target_: torchvision.transforms.Grayscale
+- _target_: torchvision.transforms.ToTensor
+- _target_: data.transforms.DequantizeTransform
+  num_vals: 256
+- _target_: data.transforms.LogitTransform
+  alpha: 0.05
+  eps: 1.0e-06
+_all_sampling_transforms:
+- _target_: data.transforms.SigmoidTransform
+  alpha: 0.05
+- _target_: data.transforms.QuantizeTransform
+  num_vals: 256
+- _partial_: true
+  _target_: torch.clamp
+  min: 0
+  max: 1
+train:
+  lightning_dgm:
+    _target_: models.flows.training.LightningFlow
+    optim_partial:
+      _partial_: true
+      _target_: torch.optim.AdamW
+      lr: 0.001
+    normalizing_flow:
+      _target_: nflows.flows.base.Flow
+      transform:
+        _target_: models.flows.diffeomorphisms.MultiscaleImageFlow
+        H: 28
+        W: 28
+        C: 1
+        squeezing_factors:
+        - 2
+        - 2
+        - 7
+        n_blocks: 7
+        coupling_partial:
+          _target_: models.flows.diffeomorphisms.RQNSF
+          _partial_: true
+          n_hidden: 64
+          n_blocks: 2
+          activation:
+            _target_: torch.nn.functional.relu
+            _partial_: true
+          dropout_probability: 0.2
+          use_batch_norm: false
+          tails: linear
+          num_bins: 2
+          tail_bound: 1.0
+          data_type: image
+      distribution:
+        _target_: nflows.distributions.StandardNormal
+        shape:
+        - 784
+    sampling_transform:
+      _target_: torchvision.transforms.Compose
+      transforms:
+      - _target_: data.transforms.SigmoidTransform
+        alpha: 0.05
+      - _target_: data.transforms.QuantizeTransform
+        num_vals: 256
+      - _partial_: true
+        _target_: torch.clamp
+        min: 0
+        max: 1
+    unpack_batch:
+      _target_: data.transforms.unpack.UnpackHuggingFace
+  loader:
+    batch_size: 10
+    shuffle: true
+    num_workers: 40
+  val_loader:
+    batch_size: 10
+    num_workers: 40
+  trainer:
+    max_epochs: 1000
+    fast_dev_run: true
+    callbacks:
+    - _target_: models.training.callbacks.SampleGrid
+      sample_every_n_epoch: 5
+      sample_kwargs: {}
+    gradient_clip_val: 1.0
+    devices: 1
+  ckpt_path: null

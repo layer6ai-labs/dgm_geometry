@@ -1,0 +1,7 @@
+_target_: torchvision.transforms.Lambda
+lambd:
+  _target_: data.transforms.UnflattenTransform
+  shape:
+    - 1
+    - 28
+    - 28

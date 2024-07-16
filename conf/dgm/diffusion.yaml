@@ -1,0 +1,5 @@
+
+defaults:
+  - architecture: diffusion_rgb
+  - sampling_args: diffusion_rgb
+  - likelihood_estimation_args: diffusion

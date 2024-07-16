@@ -1,0 +1,46 @@
+dev_run: false
+out_dir: ./outputs
+mlflow:
+  experiment_name: Training
+  tags:
+    data_type: image_rgb
+    model: diffusion
+  pytorch_autolog: # kwargs for mlflow.pytorch.autolog
+    disable: ${dev_run} # Set to false to log checkpoints and other mlflow artefacts
+    log_models: false
+
+defaults:
+- hydra: default
+- dataset: cifar10
+- dgm: diffusion
+- lightning_dgm: image_lightning_diffusion
+- _self_
+
+# Please do not change the following to make the callbacks and data transform commands work!
+all_callbacks: {}
+all_data_transforms: {}
+all_sampling_transforms: {}
+_all_callbacks: ${oc.dict.values:all_callbacks} # add all the callbacks
+# add all the data transforms sorted according to their t0, t1, t2, ...
+_all_data_transforms: ${oc.dict.values:all_data_transforms} 
+# add all the sampling transforms sorted according to their t0, t1, t2, ...  
+_all_sampling_transforms: ${oc.dict.values:all_sampling_transforms} 
+
+train:
+  lightning_dgm: ${lightning_dgm}
+
+  loader: # kwargs for DataLoader
+    batch_size: 128
+    shuffle: True
+    num_workers: 40
+
+  val_loader:
+    batch_size: 128
+    num_workers: 40
+
+  trainer: # kwargs for lightning.Trainer
+    max_epochs: 1000
+    fast_dev_run: ${dev_run}
+    callbacks: ${_all_callbacks}
+
+  ckpt_path: null

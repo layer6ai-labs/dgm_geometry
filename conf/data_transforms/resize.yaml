@@ -1,0 +1,4 @@
+_target_: torchvision.transforms.Resize
+size:
+  - ${dataset.image_size}
+  - ${dataset.image_size}

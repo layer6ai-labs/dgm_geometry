@@ -1,0 +1,398 @@
+dataset:
+  train:
+    _target_: data.datasets.HuggingFaceDataset
+    dataset:
+      _target_: datasets.load_dataset
+      path: svhn
+      name: cropped_digits
+      split: train
+      trust_remote_code: true
+    transform:
+      _target_: torchvision.transforms.Compose
+      transforms:
+      - _target_: torchvision.transforms.Resize
+        size:
+        - 32
+        - 32
+      - _target_: torchvision.transforms.ToTensor
+      - _target_: torchvision.transforms.Normalize
+        mean:
+        - 0.5
+        - 0.5
+        - 0.5
+        std:
+        - 0.5
+        - 0.5
+        - 0.5
+      - _target_: torchvision.transforms.Lambda
+        lambd:
+          _target_: torch.flatten
+          _partial_: true
+  val:
+    _target_: data.datasets.HuggingFaceDataset
+    dataset:
+      _target_: datasets.load_dataset
+      path: svhn
+      name: cropped_digits
+      split: test
+      trust_remote_code: true
+    transform:
+      _target_: torchvision.transforms.Compose
+      transforms:
+      - _target_: torchvision.transforms.Resize
+        size:
+        - 32
+        - 32
+      - _target_: torchvision.transforms.ToTensor
+      - _target_: torchvision.transforms.Normalize
+        mean:
+        - 0.5
+        - 0.5
+        - 0.5
+        std:
+        - 0.5
+        - 0.5
+        - 0.5
+      - _target_: torchvision.transforms.Lambda
+        lambd:
+          _target_: torch.flatten
+          _partial_: true
+  data_dim: 3072
+  image_size: 32
+  is_tabular: false
+  is_image: true
+  training_torch_data:
+    _target_: data.datasets.TorchHuggingFaceDatasetWrapper
+    hugging_face_dataset:
+      _target_: data.datasets.HuggingFaceDataset
+      dataset:
+        _target_: datasets.load_dataset
+        path: svhn
+        name: cropped_digits
+        split: train
+        trust_remote_code: true
+      transform:
+        _target_: torchvision.transforms.Compose
+        transforms:
+        - _target_: torchvision.transforms.Resize
+          size:
+          - 32
+          - 32
+        - _target_: torchvision.transforms.ToTensor
+        - _target_: torchvision.transforms.Normalize
+          mean:
+          - 0.5
+          - 0.5
+          - 0.5
+          std:
+          - 0.5
+          - 0.5
+          - 0.5
+        - _target_: torchvision.transforms.Lambda
+          lambd:
+            _target_: torch.flatten
+            _partial_: true
+  test_torch_data:
+    _target_: data.datasets.TorchHuggingFaceDatasetWrapper
+    hugging_face_dataset:
+      _target_: data.datasets.HuggingFaceDataset
+      dataset:
+        _target_: datasets.load_dataset
+        path: svhn
+        name: cropped_digits
+        split: test
+        trust_remote_code: true
+      transform:
+        _target_: torchvision.transforms.Compose
+        transforms:
+        - _target_: torchvision.transforms.Resize
+          size:
+          - 32
+          - 32
+        - _target_: torchvision.transforms.ToTensor
+        - _target_: torchvision.transforms.Normalize
+          mean:
+          - 0.5
+          - 0.5
+          - 0.5
+          std:
+          - 0.5
+          - 0.5
+          - 0.5
+        - _target_: torchvision.transforms.Lambda
+          lambd:
+            _target_: torch.flatten
+            _partial_: true
+dgm:
+  architecture:
+    _target_: models.diffusions.sdes.VpSde
+    score_net:
+      _target_: models.diffusions.networks.MLPUnet
+      data_dim: 3072
+      hidden_sizes:
+      - 4096
+      - 2048
+      - 1024
+      - 1024
+      - 512
+      - 512
+      time_embedding_dim: 128
+  sampling_args:
+    sample_shape:
+    - 3072
+    timesteps: 1000
+    batch_size: 128
+  likelihood_estimation_args: {}
+lightning_dgm:
+  _target_: models.diffusions.training.LightningDiffusion
+  optim_partial:
+    _partial_: true
+    _target_: torch.optim.AdamW
+    lr: 0.0001
+  scheduler_partial:
+    _partial_: true
+    _target_: diffusers.optimization.get_cosine_schedule_with_warmup
+    num_warmup_steps: 500
+  sde:
+    _target_: models.diffusions.sdes.VpSde
+    score_net:
+      _target_: models.diffusions.networks.MLPUnet
+      data_dim: 3072
+      hidden_sizes:
+      - 4096
+      - 2048
+      - 1024
+      - 1024
+      - 512
+      - 512
+      time_embedding_dim: 128
+  sampling_transform:
+    _target_: torchvision.transforms.Compose
+    transforms:
+    - _target_: torchvision.transforms.Lambda
+      lambd:
+        _target_: data.transforms.UnflattenTransform
+        shape:
+        - 3
+        - 32
+        - 32
+    - _target_: torchvision.transforms.Normalize
+      mean:
+      - -1
+      - -1
+      - -1
+      std:
+      - 2
+      - 2
+      - 2
+    - _partial_: true
+      _target_: torch.clamp
+      min: 0
+      max: 1
+  unpack_batch:
+    _target_: data.transforms.unpack.UnpackHuggingFace
+dev_run: false
+out_dir: ./outputs
+mlflow:
+  experiment_name: hydra_tests
+  tags:
+    data_type: image_rgb_flattened
+    model: diffusion
+    test_script: train
+    test_type: checkpoints
+    setting: dev_svhn_diffusion_mlp
+  pytorch_autolog:
+    disable: false
+    log_models: false
+all_callbacks:
+  log_metrics:
+    _target_: models.training.callbacks.MlFlowLogMetrics
+  sample_grid:
+    _target_: models.training.callbacks.SampleGrid
+    sample_every_n_epoch: 1
+    sample_kwargs:
+      sample_shape:
+      - 3072
+      timesteps: 1000
+      batch_size: 128
+  checkpoint:
+    _target_: lightning.pytorch.callbacks.ModelCheckpoint
+    monitor: val/loss
+    save_last: true
+    save_top_k: 3
+all_data_transforms:
+  t0:
+    _target_: torchvision.transforms.Resize
+    size:
+    - 32
+    - 32
+  t1:
+    _target_: torchvision.transforms.ToTensor
+  t2:
+    _target_: torchvision.transforms.Normalize
+    mean:
+    - 0.5
+    - 0.5
+    - 0.5
+    std:
+    - 0.5
+    - 0.5
+    - 0.5
+  t3:
+    _target_: torchvision.transforms.Lambda
+    lambd:
+      _target_: torch.flatten
+      _partial_: true
+all_sampling_transforms:
+  t0:
+    _target_: torchvision.transforms.Lambda
+    lambd:
+      _target_: data.transforms.UnflattenTransform
+      shape:
+      - 3
+      - 32
+      - 32
+  t1:
+    _target_: torchvision.transforms.Normalize
+    mean:
+    - -1
+    - -1
+    - -1
+    std:
+    - 2
+    - 2
+    - 2
+  t2:
+    _partial_: true
+    _target_: torch.clamp
+    min: 0
+    max: 1
+_all_callbacks:
+- _target_: models.training.callbacks.MlFlowLogMetrics
+- _target_: models.training.callbacks.SampleGrid
+  sample_every_n_epoch: 1
+  sample_kwargs:
+    sample_shape:
+    - 3072
+    timesteps: 1000
+    batch_size: 128
+- _target_: lightning.pytorch.callbacks.ModelCheckpoint
+  monitor: val/loss
+  save_last: true
+  save_top_k: 3
+_all_data_transforms:
+- _target_: torchvision.transforms.Resize
+  size:
+  - 32
+  - 32
+- _target_: torchvision.transforms.ToTensor
+- _target_: torchvision.transforms.Normalize
+  mean:
+  - 0.5
+  - 0.5
+  - 0.5
+  std:
+  - 0.5
+  - 0.5
+  - 0.5
+- _target_: torchvision.transforms.Lambda
+  lambd:
+    _target_: torch.flatten
+    _partial_: true
+_all_sampling_transforms:
+- _target_: torchvision.transforms.Lambda
+  lambd:
+    _target_: data.transforms.UnflattenTransform
+    shape:
+    - 3
+    - 32
+    - 32
+- _target_: torchvision.transforms.Normalize
+  mean:
+  - -1
+  - -1
+  - -1
+  std:
+  - 2
+  - 2
+  - 2
+- _partial_: true
+  _target_: torch.clamp
+  min: 0
+  max: 1
+train:
+  lightning_dgm:
+    _target_: models.diffusions.training.LightningDiffusion
+    optim_partial:
+      _partial_: true
+      _target_: torch.optim.AdamW
+      lr: 0.0001
+    scheduler_partial:
+      _partial_: true
+      _target_: diffusers.optimization.get_cosine_schedule_with_warmup
+      num_warmup_steps: 500
+    sde:
+      _target_: models.diffusions.sdes.VpSde
+      score_net:
+        _target_: models.diffusions.networks.MLPUnet
+        data_dim: 3072
+        hidden_sizes:
+        - 4096
+        - 2048
+        - 1024
+        - 1024
+        - 512
+        - 512
+        time_embedding_dim: 128
+    sampling_transform:
+      _target_: torchvision.transforms.Compose
+      transforms:
+      - _target_: torchvision.transforms.Lambda
+        lambd:
+          _target_: data.transforms.UnflattenTransform
+          shape:
+          - 3
+          - 32
+          - 32
+      - _target_: torchvision.transforms.Normalize
+        mean:
+        - -1
+        - -1
+        - -1
+        std:
+        - 2
+        - 2
+        - 2
+      - _partial_: true
+        _target_: torch.clamp
+        min: 0
+        max: 1
+    unpack_batch:
+      _target_: data.transforms.unpack.UnpackHuggingFace
+  loader:
+    batch_size: 128
+    shuffle: true
+    num_workers: 40
+  val_loader:
+    batch_size: 128
+    num_workers: 40
+  trainer:
+    max_epochs: 1047
+    fast_dev_run: false
+    callbacks:
+    - _target_: models.training.callbacks.MlFlowLogMetrics
+    - _target_: models.training.callbacks.SampleGrid
+      sample_every_n_epoch: 1
+      sample_kwargs:
+        sample_shape:
+        - 3072
+        timesteps: 1000
+        batch_size: 128
+    - _target_: lightning.pytorch.callbacks.ModelCheckpoint
+      monitor: val/loss
+      save_last: true
+      save_top_k: 3
+    limit_train_batches: 1
+    limit_val_batches: 1
+mflow:
+  experiment_name: hydra_test

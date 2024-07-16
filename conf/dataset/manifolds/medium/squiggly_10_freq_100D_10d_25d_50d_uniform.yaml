@@ -1,0 +1,26 @@
+train:
+  _target_: data.datasets.generated.LIDSyntheticDataset
+  size: 500000
+  distribution:
+    _target_: data.distributions.SquigglyManifoldMixture
+    manifold_dims: [10, 25, 50]
+    ambient_dim: 100
+    sample_distr: uniform
+    distance_between_modes: 10
+    seed: 123
+    frequency: 10.0
+    kappa_control: 1e-4
+    n_transforms: 5
+  standardize: true
+
+
+val:
+  _target_: data.datasets.generated.LIDSyntheticDataset
+  size: 1000
+  distribution: ${dataset.train.distribution}
+
+
+data_dim: 100
+is_tabular: true
+is_image: false
+training_torch_data: ${dataset.train}

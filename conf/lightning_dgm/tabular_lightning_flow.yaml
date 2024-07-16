@@ -1,0 +1,15 @@
+_target_: models.flows.training.LightningFlow
+
+optim_partial:
+  _partial_: true
+  _target_: torch.optim.AdamW
+  lr: 1e-4
+
+normalizing_flow: ${dgm.architecture}
+
+sampling_transform: # Should reverse the dataset transform (and clamp if necessary)
+  _target_: torchvision.transforms.Compose
+  transforms: ${_all_sampling_transforms}
+
+unpack_batch: # Should reverse the dataset transform
+  _target_: data.transforms.unpack.UnpackTabular

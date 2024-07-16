@@ -1,0 +1,150 @@
+lid_method:
+  estimator:
+    _target_: lid.skdim.SkdimLIDEstimator
+    estimator_type: ESS
+    unpack: null
+    _partial_: true
+  preprocess_args:
+    n_neighbors: 100
+    n_jobs: 40
+  estimation_args:
+    n_jobs: 40
+    dataloader_kwargs:
+      batch_size: 128
+dataset:
+  train:
+    _target_: data.datasets.HuggingFaceDataset
+    dataset:
+      _target_: datasets.load_dataset
+      path: mnist
+      split: train
+      trust_remote_code: true
+    transform:
+      _target_: torchvision.transforms.Compose
+      transforms:
+      - _target_: torchvision.transforms.Resize
+        size:
+        - 28
+        - 28
+      - _target_: torchvision.transforms.Grayscale
+      - _target_: torchvision.transforms.ToTensor
+    subset_size: 1024
+  val:
+    _target_: data.datasets.HuggingFaceDataset
+    dataset:
+      _target_: datasets.load_dataset
+      path: mnist
+      split: test
+      trust_remote_code: true
+    transform:
+      _target_: torchvision.transforms.Compose
+      transforms:
+      - _target_: torchvision.transforms.Resize
+        size:
+        - 28
+        - 28
+      - _target_: torchvision.transforms.Grayscale
+      - _target_: torchvision.transforms.ToTensor
+  data_dim: 784
+  image_size: 28
+  is_tabular: false
+  is_image: true
+  training_torch_data:
+    _target_: data.datasets.TorchHuggingFaceDatasetWrapper
+    hugging_face_dataset:
+      _target_: data.datasets.HuggingFaceDataset
+      dataset:
+        _target_: datasets.load_dataset
+        path: mnist
+        split: train
+        trust_remote_code: true
+      transform:
+        _target_: torchvision.transforms.Compose
+        transforms:
+        - _target_: torchvision.transforms.Resize
+          size:
+          - 28
+          - 28
+        - _target_: torchvision.transforms.Grayscale
+        - _target_: torchvision.transforms.ToTensor
+      subset_size: 1024
+  test_torch_data:
+    _target_: data.datasets.TorchHuggingFaceDatasetWrapper
+    hugging_face_dataset:
+      _target_: data.datasets.HuggingFaceDataset
+      dataset:
+        _target_: datasets.load_dataset
+        path: mnist
+        split: test
+        trust_remote_code: true
+      transform:
+        _target_: torchvision.transforms.Compose
+        transforms:
+        - _target_: torchvision.transforms.Resize
+          size:
+          - 28
+          - 28
+        - _target_: torchvision.transforms.Grayscale
+        - _target_: torchvision.transforms.ToTensor
+out_dir: ./outputs
+mlflow:
+  experiment_name: hydra_tests
+  tags:
+    data_type: image
+    lid_method: ess
+    test_script: model_free_lid
+    setting: dev_mnist_ess
+dev_run: false
+subsample_size: 1024
+evaluation_methods:
+- _target_: lid.evaluation.mae
+  _partial_: true
+- _target_: lid.evaluation.mse
+  _partial_: true
+- _target_: lid.evaluation.relative_bias
+  _partial_: true
+- _target_: lid.evaluation.concordance_index
+  with_equal: true
+  _partial_: true
+- _target_: lid.evaluation.concordance_index
+  with_equal: false
+  _partial_: true
+visualize_manifold: true
+all_data_transforms:
+  t0:
+    _target_: torchvision.transforms.Resize
+    size:
+    - 28
+    - 28
+  t1:
+    _target_: torchvision.transforms.Grayscale
+  t2:
+    _target_: torchvision.transforms.ToTensor
+_all_data_transforms:
+- _target_: torchvision.transforms.Resize
+  size:
+  - 28
+  - 28
+- _target_: torchvision.transforms.Grayscale
+- _target_: torchvision.transforms.ToTensor
+lid_dataset:
+  _target_: data.datasets.TorchHuggingFaceDatasetWrapper
+  hugging_face_dataset:
+    _target_: data.datasets.HuggingFaceDataset
+    dataset:
+      _target_: datasets.load_dataset
+      path: mnist
+      split: train
+      trust_remote_code: true
+    transform:
+      _target_: torchvision.transforms.Compose
+      transforms:
+      - _target_: torchvision.transforms.Resize
+        size:
+        - 28
+        - 28
+      - _target_: torchvision.transforms.Grayscale
+      - _target_: torchvision.transforms.ToTensor
+    subset_size: 1024
+mflow:
+  experiment_name: hydra_test

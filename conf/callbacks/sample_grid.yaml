@@ -1,0 +1,4 @@
+
+_target_: models.training.callbacks.SampleGrid
+sample_every_n_epoch: 5
+sample_kwargs: ${dgm.sampling_args}

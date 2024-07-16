@@ -1,0 +1,2 @@
+_target_: lightning.pytorch.callbacks.TQDMProgressBar
+refresh_rate: 1 # by default refreshes after every batch, but you can increase this to avoid having huge logs in stderr of mlflow

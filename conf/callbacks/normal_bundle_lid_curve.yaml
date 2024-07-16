@@ -1,0 +1,28 @@
+_target_: lid.callbacks.monitor_lid_curve.MonitorLIDCurve
+device: # the device that NB estimator uses for JVP computation
+  _target_: torch.device
+  type: cuda
+dataset: ${dataset.training_torch_data}
+# The sweeping arguments
+sweeping_arg: singular_value_threshold
+sweeping_range:
+  _target_: numpy.linspace
+  start: -10
+  stop: 5
+  num: 50
+use_artifact: True # This heavily boosts the process! 
+lid_estimator_partial:
+  _target_: lid.diffusions.NormalBundleEstimator
+  _partial_: true
+  ambient_dim: ${dataset.data_dim}
+
+frequency: 1
+subsample_size: 4096
+verbose: True
+save_image: ${dataset.is_image}
+batch_size: 128
+
+lid_preprocessing_args:
+  num_scores: null # set to 4 times ambient_dim
+  score_batch_size: 128
+  noise_time: 0.01

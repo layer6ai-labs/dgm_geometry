@@ -1,0 +1,20 @@
+_target_: models.diffusions.training.LightningDiffusion
+
+optim_partial:
+  _partial_: true
+  _target_: torch.optim.AdamW
+  lr: 1e-4
+
+scheduler_partial:
+  _partial_: true
+  _target_: diffusers.optimization.get_cosine_schedule_with_warmup
+  num_warmup_steps: 500
+
+sde: ${dgm.architecture}
+
+sampling_transform: # Should reverse the dataset transform (and clamp if necessary)
+  _target_: torchvision.transforms.Compose
+  transforms: ${_all_sampling_transforms}
+
+unpack_batch: # Should reverse the dataset transform
+  _target_: data.transforms.unpack.UnpackHuggingFace

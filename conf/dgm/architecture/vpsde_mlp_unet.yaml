@@ -1,0 +1,6 @@
+_target_: models.diffusions.sdes.VpSde
+score_net:
+  _target_: models.diffusions.networks.MLPUnet
+  data_dim: ${dataset.data_dim} 
+  hidden_sizes: [4096, 2048, 1024, 1024, 512, 512]
+  time_embedding_dim: 128

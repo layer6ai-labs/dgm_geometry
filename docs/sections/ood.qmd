@@ -1,0 +1,94 @@
+---
+title: Out-of-Distribution Detection and the Likelihood Paradox
+authors: "Hamidreza Kamkari"
+format:
+  html:
+    code-fold: true
+    toc: true
+    toc-title: "Overview"
+    max-width: 800px
+jupyter: python3
+---
+
+
+![The likelihood assigned to OOD datapoints (in red) is higher than both the likelihoods assigned to in-distribution datapoints (in blue), as well as samples generated from the model (in gold).](../figures/fig2-aria-1.png){#fig-failure} 
+
+## Introduction
+
+Intuitively, when one trains a likelihood-based generative model, it implicitly or explicitly increases the likelihood for the training (in-distribution) data. 
+Therefore, it is reasonable to assume that since the likelihoods integrate to zero (likelihoods are in fact a valid probability density $p_\theta$) 
+out-of-distribution (OOD) data would obtain low likelihoods. However, paradoxically, deep generative models do not show this behaviour.
+In fact, based on the research presented in ["Do deep generative models know what they don't know?"](https://arxiv.org/abs/1810.09136) [@nalisnick2019detecting], OOD datapoints sometimes *consistently* get assigned higher likelihoods than in-distribution data. 
+This phenomenon, which is coined the **Likelihood Paradox**, is not only a significant challenge for OOD detection, but also a fundamental question about the nature of deep generative models. @fig-failure illustrates this phenomenon for a generative model, 
+whereby the model is trained on FMNIST but assigns higher likelihoods to MNIST digits (in red) that it has never seen before!
+Adding to the perplexity, the model *never* generates things that are even remotely similar to MNIST digits, as depicted in @fig-failure.
+
+In our study [@kamkari2024oodlid], we facilitate the simple observation that while generative models assign high probability density to OOD data, the probability mass assigned to the OOD manifold is almost zero. Otherwise, the model would sometimes generate
+OOD datapoints, which is not the case. In turn, rather than relying on likelihoods alone, we should use extra informatioin that reveals characteristics of the probability mass. For example, when OOD data is supported on an extremely low-dimensional manifold,
+then no matter how high the probability density is, the probability mass assigned to the OOD manifold is almost zero. 
+This observation is the basis of our proposed method, which we call **Out-of-Distribution Detection with Local Intrinsic Dimensionality** (OOD-LID).
+
+## A Cartoon Illustration
+
+![Illustrating the likelihood paradox between FMNIST (the blue region) and MNIST (the red region): Despite the model not having seen MNIST images before, the density (shown in gold) peaks at MNIST, yet it never generates samples from it. 
+By using LID as a tractable proxy for volume, we argue that a region is considered in-distribution not just because it has high density, but because it has both high density and high volume.](../figures/ood_detection.gif){#fig-ood-explanation} 
+
+Our explanation for the likelihood paradox is as follows: While paradoxical out-of-distribution regions might exist due to the complexity of deep generative models, the fact that the model never generates them indicates that they must have 
+low probability mass. Calculating probability mass directly is intractable for complex regions in high-dimensional spaces. Instead, we can intuitively think of the probability mass as the volume of the region multiplied by the probability density.
+ Although computing the volume of a small region too is challenging, we establish that this volume is monotonically related to the intrinsic dimensionality of the region, for which we have estimators.
+
+Therefore, we propose using the intrinsic dimensionality of the region as a proxy for its probability mass. When a manifold has lower intrinsic dimensionality than another, its volume is infinitely smaller, and thus, its 
+probability mass is also infinitely smaller. Drawing an analogy, we hypothesize that these paradoxical likelihood regions lie on lower-dimensional manifolds. Consequently, even though the probability density might be high, the probability mass is 
+infinitely small.
+
+We have illustrated our point in @fig-ood-explanation. The cartoon shows a model trained on FMNIST and assumes FMNIST lies on a higher-dimensional manifold (in blue) than MNIST (in red). The model assigns higher likelihoods to MNIST digits, which are OOD, 
+but because the volume of the MNIST region is infinitely smaller due to its lower intrinsic dimensionality, the probability mass assigned to the MNIST manifold is almost zero. Therefore, the model never generates MNIST digits.
+
+Leveraging this observation, we design a simple yet effective OOD detection algorithm: estimate both the likelihood and intrinsic dimensionality for each datapoint and classify a datapoint as in-distribution if and only if both the likelihood and intrinsic 
+dimensionality are high (above certain thresholds $\psi_{\mathcal{L}}$ and $\psi_{\text{LID}_\theta}$ on likelihood and LID, respectively). As depicted in @fig-ood-explanation, this method will (1) classify pure noise as OOD because it has low likelihood, (2) classify MNIST as OOD because despite having high likelihood, it has low intrinsic dimensionality, and (3) classify 
+FMNIST as in-distribution because it has both high likelihood and high intrinsic dimensionality.
+
+## Relation to Prior Work
+
+Prior work have shown that the paradox is one-sided, meaning that when training a model on dataset $A$ and evaluating it on dataset $B$, the model assigns higher likelihoods to $B$ than $A$ only if $A$ is **more complex** 
+than $B$ [@ren2019likelihood, @serra2019input, @caterini2022entropic]. This means that if we train a model on MNIST digits and evaluate it on FMNIST digits, the model assigns higher likelihoods to MNIST.
+
+We argue that LID here can be thought of as a measure of complexity! In fact, we have a new paper dedicated to this topic [@kamkari2024flipd]. When the likelihood paradox happens, while likelihood cannot reliably distinguish between in-distribution and OOD data,
+LID can.
+
+## Why Does the Paradox Happen in the First Place?
+
+Our work explains why the model never generates OOD data, despite assigning high likelihoods to it. However, the question of why this paradox occurs in different generative models has been explored in the literature. 
+For example, [@kirichenko2020normalizing] and [@schirrmeister2020understanding] argue that the inductive biases of the networks used for generative modeling are the culprit. These networks tend to over-fixate on high-frequency patterns in the images, 
+leading them to assign high likelihoods to *all* natural images, regardless of whether they are in-distribution or OOD. In fact, due to simplicity priors discussed in [@caterini2022entropic], the model may assign higher likelihoods to OOD data than to 
+in-distribution data.
+
+Thus, we see our explanation as complementary to these works. While they explain why the model assigns high likelihoods to OOD data, we provide an explanation for why the model never generates OOD data. We use this observation to design a
+ new OOD detection algorithm.
+
+## How to Use Our Method?
+
+We have provided a hands-on guide to get started with our method [here](../../sections/ood/ood_guide.html). Please cite our repository and paper using the following:
+
+```{.bibtex}
+@misc{dgm_geometry_github,
+  author = {Hamidreza Kamkari, Brendan Leigh Ross, Jesse C. Cresswell, Gabriel Loaiza-Ganem},
+  title = {DGM Geometry},
+  year = {2024},
+  howpublished = {\url{https://github.com/blross/dgm-geometry}},
+  note = {GitHub repository},
+}
+
+@article{kamkari2024oodlid,
+  title={A Geometric Explanation of the Likelihood OOD Detection Paradox},
+  author={Kamkari, Hamidreza and Ross, Brendan Leigh and Cresswell, Jesse C and Caterini, Anthony L and Krishnan, Rahul G and Loaiza-Ganem, Gabriel},
+  journal={arXiv preprint arXiv:2403.18910},
+  year={2024}
+}
+```
+
+<!-- 
+## References -->
+<!-- 
+::: {#refs}
+::: -->

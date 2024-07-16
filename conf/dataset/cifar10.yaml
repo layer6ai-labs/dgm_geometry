@@ -1,0 +1,38 @@
+train:
+  _target_: data.datasets.HuggingFaceDataset
+
+  dataset:
+    _target_: datasets.load_dataset
+    path: cifar10 # Huggingface dataset from https://huggingface.co/datasets
+    split: train
+    trust_remote_code: True
+
+  transform:
+    _target_: torchvision.transforms.Compose
+    transforms: ${_all_data_transforms}
+
+
+val:
+  _target_: data.datasets.HuggingFaceDataset
+
+  dataset:
+    _target_: datasets.load_dataset
+    path: cifar10 # Huggingface dataset from https://huggingface.co/datasets
+    split: test
+    trust_remote_code: True
+
+  transform:
+    _target_: torchvision.transforms.Compose
+    transforms: ${_all_data_transforms}
+
+
+data_dim: 3072
+image_size: 32
+is_tabular: false
+is_image: true
+training_torch_data: 
+  _target_: data.datasets.TorchHuggingFaceDatasetWrapper # throw in a wrapper to make it compatible with LID estimation.
+  hugging_face_dataset: ${..train} # relative resolution is important for multi dataset support
+test_torch_data: 
+  _target_: data.datasets.TorchHuggingFaceDatasetWrapper # throw in a wrapper to make it compatible with LID estimation.
+  hugging_face_dataset: ${..val} # relative resolution is important for multi dataset support

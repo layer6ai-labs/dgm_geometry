@@ -1,0 +1,14 @@
+train:
+  _target_: data.datasets.MondrianDataset
+  size: 2000
+  seed: 0
+
+
+val:
+  split_size: 0
+
+is_tabular: false
+is_image: true
+training_torch_data: 
+  _target_: data.datasets.TorchHuggingFaceDatasetWrapper # throw in a wrapper to make it compatible with LID estimation.
+  hugging_face_dataset: ${dataset.train}
