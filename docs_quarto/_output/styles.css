@@ -1,0 +1,83 @@
+/* ------------ header ------------ */
+#quarto-header a:hover {
+    color: #dfc27d !important;  
+}
+
+/* ------------ content ------------ */
+/* Target all elements with an href attribute in the content */
+#quarto-document-content a {
+    color: #BA8003 !important;
+}
+#quarto-document-content a:hover, a:focus {
+    color: #dfc27d !important; 
+}
+#quarto-document-content .citation a {
+    color: #1F78B4 !important;  /* Code pieces are red */
+}
+#quarto-document-content .quarto-xref {
+    color: #A02C30 !important;  /* Code pieces are red */
+}
+
+
+#quarto-document-content code {
+    color: #A02C30 !important;  /* Code pieces are red */
+}
+
+/* Target the first breadcrumb item and set its color to green */
+#quarto-document-content .breadcrumb-item:first-child a {
+    color: #BA8003 !important;
+}
+
+/* Target all breadcrumb items except the first and last, and set their color to purple */
+#quarto-document-content .breadcrumb-item:not(:first-child):not(:last-child) a {
+    color: grey !important;
+}
+
+/* Target the last breadcrumb item and set its color to pink */
+#quarto-document-content .breadcrumb-item:last-child a {
+    color: grey !important;
+    /* make bold */
+    font-weight: bold;
+    /* make italic */
+    font-style: italic;
+}
+
+/* ------------ side bar ------------ */
+#quarto-sidebar .sidebar-item-text:hover {
+    color: #dfc27d !important;
+}
+
+#quarto-sidebar .sidebar-item-text.active {
+    color: #BA8003 !important;
+    font-weight: bold;
+    font-style: italic;
+}
+#quarto-sidebar .sidebar-item-text:active {
+    color: #BA8003 !important;
+}
+
+/* ------------ margin sidebar ------------ */
+#quarto-margin-sidebar  a:hover, a:focus {
+    color: #dfc27d !important;
+}
+#quarto-margin-sidebar  .nav-link.active {
+    color: #BA8003 !important;
+    font-weight: bold;
+    font-style: italic;
+}
+/* Active state styles */
+#quarto-margin-sidebar .nav-link.active {
+    color: #BA8003 !important;  /* Darker gold when active */
+    border-left: 4px solid #BA8003 !important; /* Change border color to purple */
+}
+
+#quarto-margin-sidebar .nav-link:active {
+    color: #dfc27d !important;  /* Darker gold when active */
+    border-left: 4px solid #BA8003!important; /* Change border color to purple */
+}
+
+#toc-title {
+    color: black !important;
+    font-weight: bold !important;
+    font-style: italic !important;
+}
