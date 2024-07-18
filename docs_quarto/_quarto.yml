@@ -9,7 +9,7 @@ website:
   navbar:
     tools:
       - icon: github
-        href: https://github.com/blross/dgm-geometry
+        href: https://github.com/layer6ai-labs/dgm_geometry
     left:
       - text: Home
         href: index.qmd
