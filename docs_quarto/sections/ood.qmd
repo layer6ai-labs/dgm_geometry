@@ -68,7 +68,7 @@ Thus, we see our explanation as complementary to these works. While they explain
 
 ## How to Use Our Method?
 
-We have provided a hands-on guide to get started with our method [here](../../sections/ood/ood_guide.html). Please cite our repository and paper using the following:
+We have provided a hands-on guide to get started with our method [here](../sections/ood/ood_guide.html). Please cite our repository and paper using the following:
 
 ```{.bibtex}
 @misc{dgm_geometry_github,
