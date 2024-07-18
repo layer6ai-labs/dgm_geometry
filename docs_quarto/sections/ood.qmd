@@ -75,7 +75,7 @@ We have provided a hands-on guide to get started with our method [here](../secti
   author = {Hamidreza Kamkari, Brendan Leigh Ross, Jesse C. Cresswell, Gabriel Loaiza-Ganem},
   title = {DGM Geometry},
   year = {2024},
-  howpublished = {\url{https://github.com/blross/dgm-geometry}},
+  howpublished = {\url{https://github.com/layer6ai-labs/dgm_geometry}},
   note = {GitHub repository},
 }
 

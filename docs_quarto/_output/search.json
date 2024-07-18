@@ -168,7 +168,7 @@
     "href": "index.html#our-work",
     "title": "The Geometry of Deep Generative Models",
     "section": "3 Our Work",
-    "text": "3 Our Work\nThis repository contains code for reproducing the results in our papers “A geometric view of data complexity” (Kamkari, Ross, Hosseinzadeh, et al. 2024) and a geometric explanation of the likelihood OOD detection paradox (Kamkari, Ross, Cresswell, et al. 2024). You may cite our repository as follows:\n@misc{dgm_geometry_github,\n  author = {Hamidreza Kamkari, Brendan Leigh Ross, Jesse C. Cresswell, Gabriel Loaiza-Ganem},\n  title = {DGM Geometry},\n  year = {2024},\n  howpublished = {\\url{https://github.com/blross/dgm-geometry}},\n  note = {GitHub repository},\n}"
+    "text": "3 Our Work\nThis repository contains code for reproducing the results in our papers “A geometric view of data complexity” (Kamkari, Ross, Hosseinzadeh, et al. 2024) and a geometric explanation of the likelihood OOD detection paradox (Kamkari, Ross, Cresswell, et al. 2024). You may cite our repository as follows:\n@misc{dgm_geometry_github,\n  author = {Hamidreza Kamkari, Brendan Leigh Ross, Jesse C. Cresswell, Gabriel Loaiza-Ganem},\n  title = {DGM Geometry},\n  year = {2024},\n  howpublished = {\\url{https://github.com/layer6ai-labs/dgm_geometry}},\n  note = {GitHub repository},\n}"
   },
   {
     "objectID": "sections/ood.html",
@@ -230,7 +230,7 @@
     "href": "sections/ood.html#how-to-use-our-method",
     "title": "Out-of-Distribution Detection and the Likelihood Paradox",
     "section": "5 How to Use Our Method?",
-    "text": "5 How to Use Our Method?\nWe have provided a hands-on guide to get started with our method here. Please cite our repository and paper using the following:\n@misc{dgm_geometry_github,\n  author = {Hamidreza Kamkari, Brendan Leigh Ross, Jesse C. Cresswell, Gabriel Loaiza-Ganem},\n  title = {DGM Geometry},\n  year = {2024},\n  howpublished = {\\url{https://github.com/blross/dgm-geometry}},\n  note = {GitHub repository},\n}\n\n@article{kamkari2024oodlid,\n  title={A Geometric Explanation of the Likelihood OOD Detection Paradox},\n  author={Kamkari, Hamidreza and Ross, Brendan Leigh and Cresswell, Jesse C and Caterini, Anthony L and Krishnan, Rahul G and Loaiza-Ganem, Gabriel},\n  journal={arXiv preprint arXiv:2403.18910},\n  year={2024}\n}",
+    "text": "5 How to Use Our Method?\nWe have provided a hands-on guide to get started with our method here. Please cite our repository and paper using the following:\n@misc{dgm_geometry_github,\n  author = {Hamidreza Kamkari, Brendan Leigh Ross, Jesse C. Cresswell, Gabriel Loaiza-Ganem},\n  title = {DGM Geometry},\n  year = {2024},\n  howpublished = {\\url{https://github.com/layer6ai-labs/dgm_geometry}},\n  note = {GitHub repository},\n}\n\n@article{kamkari2024oodlid,\n  title={A Geometric Explanation of the Likelihood OOD Detection Paradox},\n  author={Kamkari, Hamidreza and Ross, Brendan Leigh and Cresswell, Jesse C and Caterini, Anthony L and Krishnan, Rahul G and Loaiza-Ganem, Gabriel},\n  journal={arXiv preprint arXiv:2403.18910},\n  year={2024}\n}",
     "crumbs": [
       "Home",
       "Out-of-distribution detection"
