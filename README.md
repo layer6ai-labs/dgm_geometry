@@ -1,5 +1,7 @@
 # DGM Geometry
 
+🚧 The code is currently undergoing major updates to improve readability. While you can still reproduce the experiments, feel free to reach out to hamid@layer6.ai with any questions or inquiries.
+
 Here, we study how the geometry of deep generative models (DGMs) can inform our understanding of phenomena like the likelihood out-of-distribution paradox. In tandem and as a supplement to these topics, we also study algorithms for local intrinsic dimension (LID) estimation of datapoints.
 
 ## Installation
